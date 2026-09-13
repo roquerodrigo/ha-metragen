@@ -1,0 +1,95 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configurar Metragen",
+                "description": "Informe o código ou e-mail e a senha que você registrou no Portal do Morador da Metragen (formulário \"Registre-se\").",
+                "data": {
+                    "username": "Código ou e-mail",
+                    "password": "Senha"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Re-autenticar Metragen",
+                "description": "O portal não aceita mais suas credenciais. Informe as credenciais atualizadas.",
+                "data": {
+                    "username": "Código ou e-mail",
+                    "password": "Senha"
+                }
+            },
+            "reconfigure": {
+                "title": "Reconfigurar Metragen",
+                "description": "Atualize as credenciais do portal para esta entrada.",
+                "data": {
+                    "username": "Código ou e-mail",
+                    "password": "Senha"
+                }
+            }
+        },
+        "error": {
+            "auth": "O portal rejeitou o código/e-mail ou a senha.",
+            "connection": "Não foi possível conectar ao portal da Metragen.",
+            "unknown": "Ocorreu um erro desconhecido."
+        },
+        "abort": {
+            "already_configured": "Esta conta já está configurada.",
+            "reauth_successful": "Re-autenticação concluída com sucesso.",
+            "reconfigure_successful": "Reconfiguração concluída com sucesso.",
+            "unique_id_mismatch": "A conta não corresponde à usada na configuração desta entrada."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Opções do Metragen",
+                "description": "Ajuste a frequência com que o portal é consultado por novas leituras.",
+                "data": {
+                    "scan_interval": "Intervalo de consulta (segundos)"
+                }
+            }
+        }
+    },
+    "device": {
+        "cold_water_meter": {
+            "name": "{code} Água Fria"
+        },
+        "hot_water_meter": {
+            "name": "{code} Água Quente"
+        },
+        "water_meter": {
+            "name": "{code} Água"
+        },
+        "gas_meter": {
+            "name": "{code} Gás"
+        }
+    },
+    "entity": {
+        "sensor": {
+            "reading": {
+                "name": "Leitura"
+            },
+            "monthly_consumption": {
+                "name": "Consumo Mensal"
+            },
+            "monthly_cost": {
+                "name": "Custo Mensal"
+            },
+            "yearly_consumption": {
+                "name": "Consumo Anual"
+            }
+        }
+    },
+    "issues": {
+        "deprecated_api": {
+            "title": "Endpoint da API depreciado em uso",
+            "fix_flow": {
+                "step": {
+                    "confirm": {
+                        "title": "Migrar para a API suportada",
+                        "description": "O endpoint usado por esta integração foi depreciado. Clique em enviar para confirmar; atualize a configuração da integração para usar o novo endpoint."
+                    }
+                }
+            }
+        }
+    }
+}

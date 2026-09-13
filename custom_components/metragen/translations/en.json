@@ -1,0 +1,95 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Set up Metragen",
+                "description": "Enter the code or e-mail and the password you registered on the Metragen resident portal (the \"Registre-se\" form of the Portal do Morador).",
+                "data": {
+                    "username": "Code or e-mail",
+                    "password": "Password"
+                }
+            },
+            "reauth_confirm": {
+                "title": "Re-authenticate Metragen",
+                "description": "The portal no longer accepts your credentials. Enter the updated credentials.",
+                "data": {
+                    "username": "Code or e-mail",
+                    "password": "Password"
+                }
+            },
+            "reconfigure": {
+                "title": "Reconfigure Metragen",
+                "description": "Update the portal credentials for this entry.",
+                "data": {
+                    "username": "Code or e-mail",
+                    "password": "Password"
+                }
+            }
+        },
+        "error": {
+            "auth": "The portal rejected the code/e-mail or the password.",
+            "connection": "Unable to connect to the Metragen portal.",
+            "unknown": "Unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "This account is already configured.",
+            "reauth_successful": "Re-authentication was successful.",
+            "reconfigure_successful": "Reconfiguration was successful.",
+            "unique_id_mismatch": "The account does not match the one this entry was set up with."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Metragen options",
+                "description": "Tune how often the portal is polled for new readings.",
+                "data": {
+                    "scan_interval": "Polling interval (seconds)"
+                }
+            }
+        }
+    },
+    "device": {
+        "cold_water_meter": {
+            "name": "{code} Cold Water"
+        },
+        "hot_water_meter": {
+            "name": "{code} Hot Water"
+        },
+        "water_meter": {
+            "name": "{code} Water"
+        },
+        "gas_meter": {
+            "name": "{code} Gas"
+        }
+    },
+    "entity": {
+        "sensor": {
+            "reading": {
+                "name": "Reading"
+            },
+            "monthly_consumption": {
+                "name": "Monthly Consumption"
+            },
+            "monthly_cost": {
+                "name": "Monthly Cost"
+            },
+            "yearly_consumption": {
+                "name": "Yearly Consumption"
+            }
+        }
+    },
+    "issues": {
+        "deprecated_api": {
+            "title": "Deprecated API endpoint in use",
+            "fix_flow": {
+                "step": {
+                    "confirm": {
+                        "title": "Switch to the supported API",
+                        "description": "The endpoint this integration was using has been deprecated. Click submit to acknowledge; update the integration's config to use the new endpoint."
+                    }
+                }
+            }
+        }
+    }
+}
