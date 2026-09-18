@@ -1,4 +1,4 @@
-"""Typed shape of the options writable by the options flow."""
+"""Formato tipado das opções graváveis pelo options flow."""
 
 from __future__ import annotations
 
@@ -6,6 +6,6 @@ from typing import NotRequired, TypedDict
 
 
 class MetragenOptionsData(TypedDict, total=False):
-    """Shape of the options writable by the options flow."""
+    """Formato das opções graváveis pelo options flow."""
 
     scan_interval: NotRequired[int]

@@ -1,10 +1,10 @@
 """
-Repairs platform for metragen.
+Plataforma de reparos do metragen.
 
-Wires this integration into Home Assistant's Issue / Repair Registry. Use
-``async_raise_deprecated_api_issue`` (or your own helper) from anywhere in the
-integration to surface a recoverable problem to the user; the UI exposes the
-"Fix" button which routes back here through ``async_create_fix_flow``.
+Liga esta integração ao registro de Issues / Reparos do Home Assistant. Use
+``async_raise_deprecated_api_issue`` (ou um helper próprio) em qualquer ponto
+da integração para expor ao usuário um problema recuperável; a interface
+mostra o botão "Corrigir", que volta para cá por ``async_create_fix_flow``.
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 ISSUE_DEPRECATED_API: str = "deprecated_api"
 
-# HA's contract for the data argument passed to async_create_fix_flow.
+# Contrato do HA para o argumento data passado a async_create_fix_flow.
 type RepairsFixFlowData = dict[str, str | int | float | None]
 
 
@@ -31,19 +31,19 @@ async def async_create_fix_flow(
     data: RepairsFixFlowData | None,  # noqa: ARG001
 ) -> RepairsFlow:
     """
-    Return the fix flow for a given issue.
+    Retorna o fluxo de correção de uma issue.
 
-    Branch on ``issue_id`` here when you have multiple kinds of issues.
+    Ramifique por ``issue_id`` aqui quando houver mais de um tipo de issue.
     """
     return ConfirmRepairFlow()
 
 
 def async_raise_deprecated_api_issue(hass: HomeAssistant) -> None:
     """
-    Sample helper: raise the deprecated-API issue.
+    Exemplo de helper: abre a issue de API descontinuada.
 
-    Call this from the coordinator / setup when you detect the recoverable
-    condition the issue describes.
+    Chame a partir do coordinator / setup ao detectar a condição recuperável
+    que a issue descreve.
     """
     ir.async_create_issue(
         hass,

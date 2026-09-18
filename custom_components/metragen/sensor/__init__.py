@@ -1,4 +1,4 @@
-"""Sensor platform for metragen."""
+"""Plataforma de sensores do metragen."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ async def async_setup_entry(
     entry: MetragenConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the sensor platform, adding meters as the portal starts listing them."""
+    """Configura os sensores, adicionando medidores conforme o portal os lista."""
     coordinator = entry.runtime_data.coordinator
     known_meter_keys: set[str] = set()
 
@@ -56,7 +56,7 @@ def _entities_for_meter(
     coordinator: MetragenDataUpdateCoordinator,
     meter: MetragenMeter,
 ) -> tuple[MetragenEntity, ...]:
-    """Return the sensors every meter exposes."""
+    """Retorna os sensores que todo medidor expõe."""
     return (
         MetragenReadingSensor(coordinator, meter),
         MetragenMonthlyConsumptionSensor(coordinator, meter),

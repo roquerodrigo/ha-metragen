@@ -31,8 +31,8 @@ updates:
         exclude-patterns:
           - "homeassistant"
     ignore:
-      # Dependabot should not update Home Assistant — that pin tracks the
-      # ``homeassistant`` key in hacs.json (set manually).
+      # O Dependabot não deve atualizar o Home Assistant — esse pin acompanha
+      # a chave ``homeassistant`` do hacs.json (definida à mão).
       - dependency-name: "homeassistant"
     commit-message:
       prefix: "deps"

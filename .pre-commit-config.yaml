@@ -1,8 +1,8 @@
-# Run with: pre-commit install (after scripts/setup)
-# The Python hooks run the repo's own tools through uv, so they use exactly
-# the versions pinned in pyproject.toml/uv.lock — the same ones CI
-# (.github/workflows/ci.yml) resolves. No mirrored-hook version to keep in
-# sync.
+# Rode com: pre-commit install (depois do scripts/setup)
+# Os hooks Python rodam as ferramentas do próprio repositório pelo uv, então
+# usam exatamente as versões fixadas em pyproject.toml/uv.lock — as mesmas que
+# o CI (.github/workflows/ci.yml) resolve. Não há versão de hook espelhado
+# para manter em sincronia.
 repos:
   - repo: local
     hooks:

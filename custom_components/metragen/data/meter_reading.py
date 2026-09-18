@@ -1,4 +1,4 @@
-"""One monthly reading of a Metragen meter."""
+"""Uma leitura mensal de um medidor Metragen."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from datetime import date
 
 @dataclass(frozen=True)
 class MetragenMeterReading:
-    """Monthly reading of a meter, volumes in cubic meters and cost in BRL."""
+    """Leitura mensal de um medidor, volumes em metros cúbicos e valor em BRL."""
 
     year: int
     month: int
@@ -19,5 +19,5 @@ class MetragenMeterReading:
 
     @property
     def period_start(self) -> date:
-        """Return the first day of the month the reading covers."""
+        """Retorna o primeiro dia do mês que a leitura cobre."""
         return date(self.year, self.month, 1)

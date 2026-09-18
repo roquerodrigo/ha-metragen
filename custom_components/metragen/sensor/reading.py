@@ -1,4 +1,4 @@
-"""Sensor exposing the latest counter value of a meter."""
+"""Sensor que expõe o valor mais recente do contador de um medidor."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from ..entity import MetragenEntity
 
 
 class MetragenReadingSensor(MetragenEntity, SensorEntity):
-    """Latest counter value of the meter, suitable as an energy dashboard source."""
+    """Valor mais recente do contador, adequado como fonte do painel de energia."""
 
     _attr_translation_key = "reading"
     _attr_native_unit_of_measurement = UnitOfVolume.CUBIC_METERS
@@ -22,16 +22,16 @@ class MetragenReadingSensor(MetragenEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        """Return a unique id derived from the config entry and the meter."""
+        """Retorna um id único derivado da config entry e do medidor."""
         return f"{self.coordinator.config_entry.entry_id}_{self._meter_key}_reading"
 
     @property
     def device_class(self) -> SensorDeviceClass:
-        """Match the utility the meter measures."""
+        """Acompanha o insumo que o medidor mede."""
         return self.meter_device_class
 
     @property
     def native_value(self) -> float | None:
-        """Return the counter value of the latest reading."""
+        """Retorna o valor do contador na leitura mais recente."""
         latest = self.latest_reading
         return None if latest is None else latest.current_reading

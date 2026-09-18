@@ -1,4 +1,4 @@
-"""Custom types for metragen."""
+"""Tipos próprios do metragen."""
 
 from __future__ import annotations
 

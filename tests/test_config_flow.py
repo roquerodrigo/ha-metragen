@@ -20,7 +20,7 @@ NEW_INPUT = {"username": "user", "password": "newpass"}
 
 @pytest.fixture(autouse=True)
 def _recorder(recorder_mock):
-    """Every flow loads the integration, whose dependencies include the recorder."""
+    """Todo fluxo carrega a integração, cujas dependências incluem o recorder."""
 
 
 def _patch_client():
@@ -118,7 +118,7 @@ async def test_step_user_generic_error_shows_unknown(hass, enable_custom_integra
     assert result["errors"]["base"] == "unknown"
 
 
-# --- Reauth ----------------------------------------------------------------
+# --- Reautenticação --------------------------------------------------------
 
 
 def _existing_entry(hass) -> MockConfigEntry:
@@ -176,7 +176,7 @@ async def test_reauth_auth_error_shows_auth(hass, enable_custom_integrations):
     assert result["errors"]["base"] == "auth"
 
 
-# --- Reconfigure -----------------------------------------------------------
+# --- Reconfiguração --------------------------------------------------------
 
 
 async def test_reconfigure_shows_form(hass, enable_custom_integrations):

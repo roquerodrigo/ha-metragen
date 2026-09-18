@@ -1,4 +1,4 @@
-"""Config flow for metragen."""
+"""Config flow do metragen."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
 
 def _credentials_schema(default_username: str | None = None) -> vol.Schema:
-    """Build the username/password schema, optionally pre-filled."""
+    """Monta o schema de usuário e senha, opcionalmente já preenchido."""
     return vol.Schema(
         {
             vol.Required(
@@ -47,7 +47,7 @@ def _credentials_schema(default_username: str | None = None) -> vol.Schema:
 
 
 class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Config flow for Metragen."""
+    """Config flow do Metragen."""
 
     VERSION = 1
 
@@ -56,17 +56,17 @@ class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: MetragenConfigEntry,  # noqa: ARG004
     ) -> MetragenOptionsFlow:
-        """Return the options flow handler."""
+        """Retorna o handler do options flow."""
         return MetragenOptionsFlow()
 
-    # The narrowed ``MetragenConfigData`` parameter is intentional
-    # — HA's base class declares ``dict[str, Any] | None`` here, and we trade
-    # strict LSP compliance for stronger typing of our own user_input schema.
+    # O parâmetro restrito a ``MetragenConfigData`` é intencional — a classe
+    # base do HA declara ``dict[str, Any] | None`` aqui, e trocamos a
+    # conformidade estrita com LSP por uma tipagem mais forte do nosso schema.
     async def async_step_user(  # type: ignore[override]
         self,
         user_input: MetragenConfigData | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Handle the initial step."""
+        """Trata o passo inicial."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -91,14 +91,14 @@ class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         entry_data: Mapping[str, str],  # noqa: ARG002
     ) -> config_entries.ConfigFlowResult:
-        """Trigger reauth when the API rejects stored credentials."""
+        """Dispara a reautenticação quando a API rejeita as credenciais salvas."""
         return await self.async_step_reauth_confirm()
 
     async def async_step_reauth_confirm(
         self,
         user_input: MetragenConfigData | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Prompt the user for new credentials and update the entry."""
+        """Pede novas credenciais ao usuário e atualiza a entry."""
         errors: dict[str, str] = {}
         entry = self._get_reauth_entry()
         existing = cast("MetragenConfigData", entry.data)
@@ -125,7 +125,7 @@ class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: MetragenConfigData | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Allow editing credentials of an existing entry."""
+        """Permite editar as credenciais de uma entry existente."""
         errors: dict[str, str] = {}
         entry = self._get_reconfigure_entry()
         existing = cast("MetragenConfigData", entry.data)
@@ -152,7 +152,7 @@ class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: MetragenConfigData,
     ) -> dict[str, str]:
-        """Test credentials and return an errors dict (empty on success)."""
+        """Testa as credenciais e retorna um dict de erros (vazio no sucesso)."""
         try:
             await self._test_credentials(
                 username=user_input["username"],
@@ -170,7 +170,7 @@ class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return {}
 
     async def _test_credentials(self, username: str, password: str) -> None:
-        """Validate credentials against the API."""
+        """Valida as credenciais na API."""
         client = MetragenApiClient(
             username=username,
             password=password,

@@ -21,7 +21,7 @@ pytest_plugins = "pytest_homeassistant_custom_component"
 
 @pytest.fixture(autouse=True)
 def mock_recorder_before_hass(async_test_recorder) -> None:
-    """Resolve the recorder database before the hass fixture starts."""
+    """Resolve o banco do recorder antes de a fixture hass iniciar."""
 
 
 def make_reading(

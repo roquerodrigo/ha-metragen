@@ -1,4 +1,4 @@
-"""Meters reported by the Metragen portal for one year."""
+"""Medidores informados pelo portal Metragen para um ano."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class MetragenReadings:
-    """Water and gas meters reported for the requested year."""
+    """Medidores de água e de gás informados para o ano solicitado."""
 
     water: tuple[MetragenMeter, ...]
     gas: tuple[MetragenMeter, ...]

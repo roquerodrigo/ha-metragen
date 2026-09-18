@@ -1,4 +1,4 @@
-"""Authentication error raised by the API client."""
+"""Erro de autenticação levantado pelo cliente da API."""
 
 from __future__ import annotations
 
@@ -8,4 +8,4 @@ from .api_client_error import MetragenApiClientError
 class MetragenApiClientAuthenticationError(
     MetragenApiClientError,
 ):
-    """Exception to indicate an authentication error."""
+    """Exceção que indica um erro de autenticação."""

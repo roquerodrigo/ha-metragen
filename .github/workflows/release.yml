@@ -1,8 +1,8 @@
 name: Release
 
-# Gated on a successful CI run rather than on the push itself. The
-# `workflow_run.event == 'push'` half of the condition is what stops a pull
-# request with green CI from cutting a release.
+# Condicionado a um CI bem-sucedido, e não ao push em si. A metade
+# `workflow_run.event == 'push'` da condição é o que impede um pull request
+# com CI verde de gerar uma release.
 
 on:
   workflow_run:

@@ -1,121 +1,144 @@
-# Code Style Guide
+# Guia de estilo de código
 
-Style conventions for the `ha-metragen` project. Before committing,
-run `uv run ruff format --check .`, `uv run ruff check .` and
-`uv run mypy custom_components/metragen` — all must exit cleanly.
-`uv run pytest` (with the 90 % coverage gate) follows.
+Convenções de estilo do projeto `ha-metragen`. Antes de commitar, rode
+`uv run ruff format --check .`, `uv run ruff check .` e
+`uv run mypy custom_components/metragen` — todos devem terminar sem erros.
+Em seguida vem o `uv run pytest` (com o gate de 90 % de cobertura).
 
-**Always read this file before adding or restructuring code.**
+**Sempre leia este arquivo antes de adicionar ou reestruturar código.**
 
-## Language
+## Idioma
 
-- Code is written in **English**: file names, class names, function names,
-  variable names, dictionary keys, identifier strings.
-- The conversation language with the user can be Portuguese or anything else;
-  what is committed to disk stays English.
-- User-facing strings live in `custom_components/metragen/translations/{en,pt-BR}.json`
-  only — never hardcoded in Python.
+O `hacs.json` declara `"country": ["BR"]`: a Metragen só existe no Brasil, então
+o português do Brasil é o idioma do repositório.
 
-## File organization
+- **Toda prosa lida por gente fica em pt-BR**: `README.md`, `CONTRIBUTING.md`,
+  este guia, o `CLAUDE.md` e os demais `.md`; docstrings e comentários; o
+  assunto e o corpo dos commits; títulos e descrições de PR; notas de release e
+  `CHANGELOG.md`, inclusive os títulos de seção (`changelog-sections` no
+  `release-please-config.json`); issues, comentários e reviews; os templates de
+  issue e de PR em `.github/`; a descrição do repositório no GitHub e a
+  `description` do `pyproject.toml`.
+- **O código continua em inglês**: nomes de arquivo, de classe, de função e de
+  variável, nomes de branch, chaves de dicionário, strings identificadoras e
+  mensagens de log. O que uma ferramenta interpreta também é código: o tipo e o
+  escopo do Conventional Commit (`feat(sensor): adiciona o consumo anual`), o
+  rodapé `BREAKING CHANGE:`, os ids de workflow e de job, as labels.
+- **Termos nativos do domínio não se traduzem**, nem no código nem na prosa —
+  são a linguagem ubíqua compartilhada com os moradores e com o portal:
+  `Medidor`, `Leitura`, `Anterior`, `AreaMorador`, `FiltroAno`. O que envolve o
+  termo segue em inglês; identificadores perdem o acento, a prosa e as strings
+  traduzidas o mantêm.
+- O idioma da conversa com o usuário nunca decide o que vai para o disco.
+- Strings voltadas ao usuário ficam apenas em
+  `custom_components/metragen/translations/{en,pt-BR}.json` — nunca fixas no
+  Python. O `en.json` continua obrigatório ao lado do `pt-BR.json`.
 
-- **One top-level class per file — including TypedDicts and dataclasses.**
-  Multiple semantically related classes (exception families, sensor entities
-  for one platform, the typed payloads and runtime data) get grouped into a
-  package directory with one class per submodule and an `__init__.py`
-  re-exporting the public symbols.
-  - Example: `exceptions/` contains `api_client_error.py`,
+## Organização dos arquivos
+
+- **Uma classe de nível superior por arquivo — inclusive TypedDicts e
+  dataclasses.** Várias classes semanticamente relacionadas (famílias de
+  exceções, entidades de sensor de uma plataforma, os payloads tipados e os
+  dados de runtime) são agrupadas em um diretório de pacote, com uma classe por
+  submódulo e um `__init__.py` que reexporta os símbolos públicos.
+  - Exemplo: `exceptions/` contém `api_client_error.py`,
     `api_client_communication_error.py`, `api_client_authentication_error.py`,
-    plus `__init__.py`.
-  - Example: `data/` contains `post.py`, `config_data.py`, `options_data.py`,
-    `diagnostics_entry.py`, `diagnostics_payload.py`, `runtime.py`, plus an
-    `__init__.py`. Every TypedDict and dataclass gets its own file — a flat
-    multi-class `data.py` is migration debt, not a valid layout.
-  - **Relaxations**: a TypedDict or `type` alias consumed by a single module
-    may live in that consuming module instead of its own file, and leaf
-    dataclasses that describe fragments of the same payload may share one
-    module. The package-with-one-class-per-submodule layout remains the
-    default the moment a shape is shared across modules.
-- **`type` aliases are the exception: they live in `data/__init__.py`**
-  alongside the re-exports (`JsonPrimitive`, `JsonValue`, `JsonObject`,
-  `MetragenConfigEntry`), not in their own files.
-- **Helper functions** may live in the same file as the single class that uses
-  them (e.g. `_verify_response_or_raise` in `api.py`).
-- **`__init__.py` of the integration package** wires `async_setup_entry`,
-  `async_unload_entry`, `async_reload_entry` and nothing else.
+    além do `__init__.py`.
+  - Exemplo: `data/` contém `post.py`, `config_data.py`, `options_data.py`,
+    `diagnostics_entry.py`, `diagnostics_payload.py`, `runtime.py`, além de um
+    `__init__.py`. Todo TypedDict e toda dataclass ganha o próprio arquivo — um
+    `data.py` plano com várias classes é dívida de migração, não um layout
+    válido.
+  - **Flexibilizações**: um TypedDict ou alias `type` consumido por um único
+    módulo pode morar nesse módulo em vez de ter arquivo próprio, e dataclasses
+    folha que descrevem fragmentos do mesmo payload podem dividir um módulo. O
+    layout de pacote com uma classe por submódulo volta a ser o padrão assim
+    que um formato é compartilhado entre módulos.
+- **Aliases `type` são a exceção: moram em `data/__init__.py`**, junto das
+  reexportações (`JsonPrimitive`, `JsonValue`, `JsonObject`,
+  `MetragenConfigEntry`), e não em arquivos próprios.
+- **Funções auxiliares** podem morar no mesmo arquivo da única classe que as
+  usa (ex.: `_verify_response_or_raise` em `api.py`).
+- **O `__init__.py` do pacote da integração** liga `async_setup_entry`,
+  `async_unload_entry`, `async_reload_entry` e nada mais.
 
-## Entities: one class per entity
+## Entidades: uma classe por entidade
 
-- **One class per entity.** Every entity gets its own dedicated class — never
-  share a generic class parameterized by an `EntityDescription` subclass with
-  callable fields like `value_fn` or `action_fn`. Encode the entity's behaviour
-  directly in its class via `@property` and class-level `_attr_*` constants
-  (or a plain `EntityDescription` instance assigned at the class level).
-  - Don't write an `<DOMAIN><Platform>Description` subclass with a
-    `value_fn` / `action_fn` field.
-  - Do write `<DOMAIN><Name><Platform>` (e.g. `MetragenStatusSensor`,
+- **Uma classe por entidade.** Toda entidade ganha a sua classe dedicada — nunca
+  compartilhe uma classe genérica parametrizada por uma subclasse de
+  `EntityDescription` com campos chamáveis como `value_fn` ou `action_fn`.
+  Codifique o comportamento da entidade diretamente na classe, com `@property`
+  e constantes `_attr_*` no nível da classe (ou uma instância simples de
+  `EntityDescription` atribuída no nível da classe).
+  - Não escreva uma subclasse `<DOMAIN><Platform>Description` com um campo
+    `value_fn` / `action_fn`.
+  - Escreva `<DOMAIN><Name><Platform>` (ex.: `MetragenStatusSensor`,
     `MetragenCancelButton`, `MetragenDoorBinarySensor`).
-- The reason: each entity is a discrete contract; mixing them through a
-  generic class hides the contract behind indirection and discourages per-entity
-  refinement (icons, state attributes, custom logic).
-- **Entity icons live in `icons.json`**
-  (`entity.<platform>.<translation_key>.default`), keyed by the entity's
-  `translation_key` — not in `_attr_icon`. The icons file supports state- and
-  range-based variants and keeps presentation out of Python.
+- O motivo: cada entidade é um contrato distinto; misturá-las em uma classe
+  genérica esconde o contrato atrás de indireção e desestimula o refinamento
+  por entidade (ícones, atributos de estado, lógica própria).
+- **Os ícones das entidades ficam no `icons.json`**
+  (`entity.<platform>.<translation_key>.default`), indexados pela
+  `translation_key` da entidade — não em `_attr_icon`. O arquivo de ícones
+  aceita variantes por estado e por faixa e mantém a apresentação fora do
+  Python.
 
-## Naming
+## Nomenclatura
 
-- Public classes are prefixed with `Metragen`.
-- Concrete platform entities end with the entity type:
+- Classes públicas têm o prefixo `Metragen`.
+- Entidades concretas de plataforma terminam com o tipo da entidade:
   `MetragenSensor`, `MetragenBinarySensor`,
   `MetragenSwitch`.
-- Exception classes end with `Error`: `MetragenApiClientError`,
+- Classes de exceção terminam com `Error`: `MetragenApiClientError`,
   `…CommunicationError`, `…AuthenticationError`.
-- Private attributes / functions are prefixed with `_`.
+- Atributos / funções privados têm o prefixo `_`.
 
-## Typing
+## Tipagem
 
-**Strict typing. No generics, no `Any`.** Mypy (`uv run mypy custom_components/metragen`) enforces this.
+**Tipagem estrita. Sem genéricos, sem `Any`.** O mypy (`uv run mypy custom_components/metragen`) garante isso.
 
-Banned: `typing.Any`, `object` as a value type, bare `dict` / `list` / `tuple` /
-`set`, `dict[str, Any]`, `Mapping[str, Any]`.
+Proibidos: `typing.Any`, `object` como tipo de valor, `dict` / `list` / `tuple` /
+`set` sem parâmetros, `dict[str, Any]`, `Mapping[str, Any]`.
 
-Required:
+Obrigatórios:
 
-- `TypedDict` for known dict / JSON shapes (see the `data/` package for the
-  canonical examples: `MetragenPost`, `MetragenConfigData`,
+- `TypedDict` para formatos conhecidos de dict / JSON (veja no pacote `data/` os
+  exemplos canônicos: `MetragenPost`, `MetragenConfigData`,
   `MetragenOptionsData`, `MetragenDiagnosticsPayload`,
-  one per file).
-- `@dataclass` for structured records (`MetragenData` in
+  um por arquivo).
+- `@dataclass` para registros estruturados (`MetragenData` em
   `data/runtime.py`).
-- Named `type` aliases for recursive / shared shapes — `JsonPrimitive`,
-  `JsonValue`, `JsonObject` in `data/__init__.py`.
-- `frozenset[str]` / `tuple[str, ...]` for fixed string collections.
-- `cast("TypedDictName", value)` at HA framework boundaries that hand us a
-  permissive type (e.g. `entry.data` is `MappingProxyType[str, Any]`).
+- Aliases `type` nomeados para formatos recursivos / compartilhados —
+  `JsonPrimitive`, `JsonValue`, `JsonObject` em `data/__init__.py`.
+- `frozenset[str]` / `tuple[str, ...]` para coleções fixas de strings.
+- `cast("TypedDictName", value)` nas fronteiras com o framework do HA que nos
+  entregam um tipo permissivo (ex.: `entry.data` é `MappingProxyType[str, Any]`).
 
-When narrowing an HA-provided callback signature (e.g. `async_step_user`),
-mypy reports `[override]` (Liskov violation). Add `# type: ignore[override]`
-with a one-line comment explaining the deliberate narrowing — see
-`config_flow.py` for the canonical example.
+Ao restringir a assinatura de um callback fornecido pelo HA (ex.:
+`async_step_user`), o mypy acusa `[override]` (violação de Liskov). Adicione
+`# type: ignore[override]` com um comentário de uma linha explicando a
+restrição deliberada — o `config_flow.py` traz o exemplo canônico.
 
-## Properties and `__init__`
+## Properties e `__init__`
 
-- **Always prefer `@property`** over assigning `_attr_*` values in `__init__`.
-  Properties are computed lazily from backing fields stored on the parent class
-  (e.g. `self.coordinator`, `self.entity_description`).
-- When the body of `__init__` would only call `super().__init__(...)`, omit
-  `__init__` entirely and let Python inherit the parent.
-- Class-level constants like `_attr_attribution = ATTRIBUTION` and
-  `_attr_has_entity_name = True` are fine — they don't depend on instance
-  state.
+- **Prefira sempre `@property`** a atribuir valores `_attr_*` no `__init__`.
+  Properties são calculadas sob demanda a partir dos campos guardados na classe
+  pai (ex.: `self.coordinator`, `self.entity_description`).
+- Quando o corpo do `__init__` só chamaria `super().__init__(...)`, omita o
+  `__init__` e deixe o Python herdar o da classe pai.
+- Constantes no nível da classe, como `_attr_attribution = ATTRIBUTION` e
+  `_attr_has_entity_name = True`, são aceitáveis — não dependem do estado da
+  instância.
 
 ## Imports
 
-- Always start every module with `from __future__ import annotations` so type
-  hints become lazy strings and the runtime cost of `if TYPE_CHECKING` imports
-  is zero.
-- Same-package relative imports (`from .module import …`) are the default.
-- Move type-only imports into a `TYPE_CHECKING` block (Ruff `TC001`/`TC003`):
+- Comece todo módulo com `from __future__ import annotations`, para que as
+  anotações de tipo virem strings avaliadas sob demanda e o custo em runtime
+  dos imports sob `if TYPE_CHECKING` seja zero.
+- Imports relativos dentro do mesmo pacote (`from .module import …`) são o
+  padrão.
+- Mova os imports usados só para tipos para um bloco `TYPE_CHECKING` (Ruff
+  `TC001`/`TC003`):
 
   ```python
   from __future__ import annotations
@@ -126,240 +149,261 @@ with a one-line comment explaining the deliberate narrowing — see
       from .data import MetragenConfigData
   ```
 
-- `noqa` comments are reserved for unavoidable framework constraints (e.g.
-  `# noqa: ARG001` for HA-framework callback parameters that must exist but go
-  unused). Document the reason inline if non-obvious. Never silence to "make
-  ruff happy" — fix the underlying code.
+- Comentários `noqa` ficam reservados a restrições inevitáveis do framework
+  (ex.: `# noqa: ARG001` para parâmetros de callback do HA que precisam existir
+  mas não são usados). Documente o motivo na própria linha se não for óbvio.
+  Nunca silencie só para "deixar o ruff feliz" — corrija o código.
 
 ## Docstrings
 
-- Every public class, function, method (including `@property`) and `__init__`
-  has a docstring. Ruff enforces this via `D102`/`D107`.
-- A single sentence is usually enough. Describe the *contract* or the *why*,
-  not the obvious implementation.
-- Module-level docstring at the top of every `.py` file.
-- Avoid restating the type — the signature already does that.
+- Toda classe, função e método públicos (inclusive `@property`) e todo
+  `__init__` têm docstring. O Ruff exige isso por `D102`/`D107`.
+- Docstrings são escritas em pt-BR. A regra `D401` do Ruff só conhece verbos em
+  inglês e pode disparar por engano em uma primeira palavra portuguesa parecida
+  com um verbo inglês ("Converte", "Helper"); reescreva a frase em vez de
+  desligar a regra.
+- Uma única frase costuma bastar. Descreva o *contrato* ou o *porquê*, não a
+  implementação óbvia.
+- Docstring de módulo no topo de todo arquivo `.py`.
+- Evite repetir o tipo — a assinatura já faz isso.
 
-## Comments
+## Comentários
 
-- Default to **no comments**. Add one only when the *why* is not obvious from
-  the code: a hidden constraint, a workaround, a subtle invariant, or a
-  deliberate type-system override.
-- Never describe *what* the code does — well-named identifiers handle that.
-- **No section dividers** like `# --- API payloads ---` to group related
-  declarations. If a file has so many sections that you feel the need for
-  visual separators, split it into multiple files instead.
+- O padrão é **não comentar**. Adicione um comentário só quando o *porquê* não
+  for óbvio pelo código: uma restrição oculta, um contorno, um invariante sutil
+  ou uma sobreposição deliberada do sistema de tipos.
+- Nunca descreva *o que* o código faz — identificadores bem nomeados cuidam
+  disso.
+- **Nada de divisores de seção** como `# --- API payloads ---` para agrupar
+  declarações relacionadas. Se um arquivo tem tantas seções que você sente
+  falta de separadores visuais, divida-o em vários arquivos.
 
 ## Logging
 
-- Each module uses the package-level `LOGGER` from `const.py`
-  (`LOGGER: Logger = getLogger(__package__)`); never call `logging.getLogger(...)`
-  ad-hoc.
-- Use **lazy `%`-formatting**, never f-strings — they force string interpolation
-  even when the level is filtered:
+- Todo módulo usa o `LOGGER` do pacote, definido em `const.py`
+  (`LOGGER: Logger = getLogger(__package__)`); nunca chame
+  `logging.getLogger(...)` de forma avulsa.
+- As mensagens de log são código e ficam em inglês.
+- Use **formatação `%` preguiçosa**, nunca f-strings — elas forçam a
+  interpolação mesmo quando o nível está filtrado:
 
   ```python
   LOGGER.warning("Refresh failed: %s", exception)   # ✓
   LOGGER.warning(f"Refresh failed: {exception}")    # ✗
   ```
 
-- Levels:
-  - `debug` — successful fetch summaries, every-poll diagnostics.
-  - `info` — one-shot lifecycle (setup complete, reauth flow started).
-  - `warning` — recoverable failures (transient API error, falling back).
-  - `error` / `exception` — unrecoverable in current cycle; pair `exception`
-    with caught exceptions inside `except` blocks for full tracebacks.
-- Never log secrets (`token`, `password`, `key`, full headers). The
-  `Coordinator → UpdateFailed` mapping should swallow the original exception's
-  string form when it could expose them.
+- Níveis:
+  - `debug` — resumos de buscas bem-sucedidas, diagnóstico de cada consulta.
+  - `info` — ciclo de vida pontual (setup concluído, fluxo de reauth iniciado).
+  - `warning` — falhas recuperáveis (erro transitório da API, uso de fallback).
+  - `error` / `exception` — irrecuperável no ciclo atual; use `exception` com
+    exceções capturadas dentro de blocos `except` para ter o traceback completo.
+- Nunca logue segredos (`token`, `password`, `key`, headers completos). O
+  mapeamento `Coordinator → UpdateFailed` deve engolir a forma em string da
+  exceção original quando ela puder expô-los.
 
-## Error messages
+## Mensagens de erro
 
-- Format: `"Failed to <verb> <object>: <cause>"` where `<cause>` is the
-  exception or a short reason. Keep them short and grep-able.
-- Pre-validate inputs before the network call so user-facing errors point at
-  the bad input, not a downstream traceback (`config_flow._validate` rejects
-  malformed credentials before contacting the API).
-- Custom exceptions get the same hierarchy:
-  `MetragenApiClientError` (base) → `…CommunicationError` (timeout,
-  connection, DNS) and `…AuthenticationError` (401/403). Wrap raw upstream
-  errors at the API client boundary; everything above only catches the
-  custom hierarchy.
+- Formato: `"Failed to <verb> <object>: <cause>"`, em que `<cause>` é a exceção
+  ou um motivo curto. Mantenha-as curtas e fáceis de buscar com grep.
+- Valide as entradas antes da chamada de rede, para que os erros mostrados ao
+  usuário apontem para a entrada ruim e não para um traceback posterior
+  (`config_flow._validate` rejeita credenciais malformadas antes de contatar a
+  API).
+- As exceções próprias seguem a mesma hierarquia:
+  `MetragenApiClientError` (base) → `…CommunicationError` (timeout, conexão,
+  DNS) e `…AuthenticationError` (401/403). Encapsule os erros brutos de origem
+  na fronteira do cliente da API; tudo acima só captura a hierarquia própria.
 
-## Coordinator and runtime data
+## Coordinator e dados de runtime
 
-- All API state flows through `entry.runtime_data: MetragenData`
-  (`data/runtime.py`). Never store integration state in `hass.data` — `runtime_data` is
-  auto-discarded on unload, the legacy `hass.data[DOMAIN][entry_id]` pattern is
-  not.
-- The coordinator is typed as `DataUpdateCoordinator[MetragenPost]`
-  (or whatever your real payload TypedDict is). `_async_update_data` returns
-  the typed payload.
-- Use `await coordinator.async_config_entry_first_refresh()` during
-  `async_setup_entry` (not `async_refresh()`) — a failed first refresh raises
-  `ConfigEntryNotReady` and HA retries with backoff automatically.
-- Pass `always_update=False` to the coordinator when the payload TypedDict
-  compares cleanly with `__eq__`; HA then skips listener callbacks and state
-  writes when the data hasn't changed.
-- Use `self.async_contexts()` inside `_async_update_data` to scope API work to
-  the entities currently subscribed — disabled entities shouldn't drive
-  network calls.
-- Error mapping inside `_async_update_data`:
-  - Communication errors → `raise UpdateFailed("Failed to …: %s" % err)`. Pass
-    `retry_after=<seconds>` when the upstream signals an explicit backoff (e.g.
+- Todo o estado da API passa por `entry.runtime_data: MetragenData`
+  (`data/runtime.py`). Nunca guarde estado da integração em `hass.data` — o
+  `runtime_data` é descartado automaticamente no unload; o padrão legado
+  `hass.data[DOMAIN][entry_id]`, não.
+- O coordinator é tipado como `DataUpdateCoordinator[MetragenPost]` (ou o
+  TypedDict que for o seu payload real). `_async_update_data` retorna o payload
+  tipado.
+- Use `await coordinator.async_config_entry_first_refresh()` durante o
+  `async_setup_entry` (não `async_refresh()`) — uma primeira atualização que
+  falha levanta `ConfigEntryNotReady`, e o HA tenta de novo com backoff
+  automaticamente.
+- Passe `always_update=False` ao coordinator quando o TypedDict do payload se
+  compara bem com `__eq__`; o HA então pula os callbacks dos listeners e as
+  escritas de estado quando os dados não mudaram.
+- Use `self.async_contexts()` dentro de `_async_update_data` para limitar o
+  trabalho de API às entidades inscritas no momento — entidades desabilitadas
+  não devem gerar chamadas de rede.
+- Mapeamento de erros dentro de `_async_update_data`:
+  - Erros de comunicação → `raise UpdateFailed("Failed to …: %s" % err)`. Passe
+    `retry_after=<seconds>` quando a origem sinalizar um backoff explícito (ex.:
     HTTP 429 `Retry-After`).
-  - Authentication errors → `raise ConfigEntryAuthFailed(...)` — HA cancels
-    further updates and starts the `SOURCE_REAUTH` flow.
-  - Never let raw upstream exception strings reach `UpdateFailed` when they
-    could carry tokens; convert to a sanitized message at the API client.
+  - Erros de autenticação → `raise ConfigEntryAuthFailed(...)` — o HA cancela as
+    próximas atualizações e inicia o fluxo `SOURCE_REAUTH`.
+  - Nunca deixe strings brutas de exceções de origem chegarem ao `UpdateFailed`
+    quando puderem carregar tokens; converta para uma mensagem sanitizada no
+    cliente da API.
 
-## Config / options / repairs / diagnostics
+## Config / opções / reparos / diagnóstico
 
-- `config_flow.py` carries `user`, `reauth`, `reauth_confirm` and `reconfigure`
-  steps, all sharing one `_validate` helper and one `_credentials_schema`
-  builder.
-- `options_flow.py` holds the single `MetragenOptionsFlow`
-  class. New options keys go into the `MetragenOptionsData`
-  TypedDict in `data/options_data.py`.
-- `repairs.py` exposes `async_create_fix_flow`. Sample helpers like
-  `async_raise_deprecated_api_issue` show how to register issues from anywhere
-  in the integration.
-- `diagnostics.py` returns `MetragenDiagnosticsPayload`. Sensitive
-  keys go into the `TO_REDACT: frozenset[str]` constant.
+- O `config_flow.py` traz os passos `user`, `reauth`, `reauth_confirm` e
+  `reconfigure`, todos compartilhando um helper `_validate` e um construtor
+  `_credentials_schema`.
+- O `options_flow.py` contém a única classe `MetragenOptionsFlow`. Novas chaves
+  de opção entram no TypedDict `MetragenOptionsData`, em
+  `data/options_data.py`.
+- O `repairs.py` expõe `async_create_fix_flow`. Helpers de exemplo como
+  `async_raise_deprecated_api_issue` mostram como registrar issues a partir de
+  qualquer ponto da integração.
+- O `diagnostics.py` retorna `MetragenDiagnosticsPayload`. As chaves sensíveis
+  entram na constante `TO_REDACT: frozenset[str]`.
 
-## Translations
+## Traduções
 
-- Two locales: `en.json` and `pt-BR.json`. `tests/test_translations.py`
-  parametrizes over every locale and fails if their nested key sets diverge.
-- Issue strings live under `issues.<issue_id>`; options strings under
-  `options.step.init.data`; flow strings under `config.step.<step_id>`;
-  entity names under `entity.<platform>.<key>.name`.
+- Dois locales: `en.json` e `pt-BR.json`. O `tests/test_translations.py`
+  parametriza sobre todos os locales e falha se os conjuntos de chaves
+  aninhadas divergirem.
+- As strings de issues ficam em `issues.<issue_id>`; as de opções, em
+  `options.step.init.data`; as de fluxo, em `config.step.<step_id>`; os nomes
+  de entidades, em `entity.<platform>.<key>.name`.
 
-## HACS publishing requirements
+## Requisitos de publicação no HACS
 
-[HACS](https://www.hacs.xyz/docs/publish/integration/) validates the repository
-shape on every push via `hacs/action@main` (and HA itself runs `hassfest`).
-Both gates must stay green:
+O [HACS](https://www.hacs.xyz/docs/publish/integration/) valida o formato do
+repositório a cada push via `hacs/action@main` (e o próprio HA roda o
+`hassfest`). Os dois gates precisam ficar verdes:
 
-- **One integration per repository**, located in `custom_components/<domain>/`.
-- `manifest.json` must declare `domain`, `name`, `version`, `documentation`,
-  `issue_tracker`, `codeowners`. The `version` key is **mandatory for custom
-  integrations** (omit it in core integrations only) and must parse as
-  `AwesomeVersion` — CalVer or SemVer.
-- `manifest.json` also declares `integration_type`. JSON carries no comments,
-  so the choice is recorded here: this integration ships `hub` because one
-  config entry represents a portal account that exposes one device per meter.
-- `hacs.json` at the repo root pins the minimum HA core via the
-  `homeassistant` key. This is the third HA pin (see `CLAUDE.md`).
-- Brand assets live under `custom_components/<domain>/brand/` — `icon.png`,
-  `icon.svg`; no `logo.png` is shipped because Home Assistant falls back to
-  the icon for it. Home Assistant 2026.3+ serves the directory straight from
-  the integration, ahead of the
-  [home-assistant/brands](https://github.com/home-assistant/brands) CDN, so no
-  brands submission is needed; `brand/README.md` records the source and the
-  size rules.
-- A `README.md` at the repo root is required; HACS surfaces it as the
-  integration description. Its header follows the layout below.
+- **Uma integração por repositório**, localizada em
+  `custom_components/<domain>/`.
+- O `manifest.json` deve declarar `domain`, `name`, `version`, `documentation`,
+  `issue_tracker`, `codeowners`. A chave `version` é **obrigatória em
+  integrações custom** (omita-a apenas em integrações do core) e precisa ser
+  interpretável como `AwesomeVersion` — CalVer ou SemVer.
+- O `manifest.json` também declara `integration_type`. JSON não aceita
+  comentários, então a escolha fica registrada aqui: esta integração usa `hub`
+  porque uma config entry representa uma conta do portal que expõe um
+  dispositivo por medidor.
+- O `hacs.json`, na raiz do repositório, fixa o core mínimo do HA pela chave
+  `homeassistant`. Esse é o terceiro pin do HA (veja o `CLAUDE.md`).
+- O `hacs.json` declara `"country": ["BR"]` (ISO 3166-1 alpha-2). Quem define
+  um país nas opções do HACS deixa de ver repositórios marcados para outros
+  países; a Metragen só atende condomínios brasileiros, então a chave evita
+  ruído nas lojas dos demais países. É ela também que define o pt-BR como
+  idioma do repositório (veja "Idioma").
+- Os assets da marca ficam em `custom_components/<domain>/brand/` — `icon.png`,
+  `icon.svg`; nenhum `logo.png` é distribuído porque o Home Assistant recai no
+  ícone para ele. O Home Assistant 2026.3+ serve o diretório direto da
+  integração, antes do CDN do
+  [home-assistant/brands](https://github.com/home-assistant/brands), então não
+  é preciso submeter nada ao brands; o `brand/README.md` registra a origem e as
+  regras de tamanho.
+- Um `README.md` na raiz do repositório é obrigatório; o HACS o exibe como a
+  descrição da integração. O cabeçalho dele segue o layout abaixo.
 
-Release-please tags releases on every merge to `main`; HACS surfaces the five
-most recent GitHub releases to users, so keep the changelog grep-able.
+O release-please marca as releases a cada merge na `main`; o HACS exibe aos
+usuários as cinco releases mais recentes do GitHub, então mantenha o changelog
+fácil de buscar.
 
-## README header
+## Cabeçalho do README
 
-Every repository opens `README.md` with the same header, in this exact order:
-**title → badges → HACS link → `---` separator → the rest of the document.**
+Todo repositório abre o `README.md` com o mesmo cabeçalho, exatamente nesta
+ordem: **título → badges → link do HACS → separador `---` → o restante do
+documento.**
 
 ```markdown
-# <Title>
+# <Título>
 
 [![CI](https://github.com/roquerodrigo/<repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/<repo>/actions/workflows/ci.yml)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
-[![Open your Home Assistant instance and open the repository inside HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=<repo>&category=integration)
+[![Abra a sua instância do Home Assistant e o repositório dentro do HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=<repo>&category=integration)
 
 ---
 ```
 
-- `owner=` is always `roquerodrigo`; `repository=` is the repository name.
-- `category=integration` for an integration; `category=plugin` for a Lovelace
-  card repository.
-- The HACS link is a paragraph of its own, separated from the badge block by a
-  blank line. The badge row and the "Open your Home Assistant instance" button
-  are different things and must not run together.
-- Preserve the badges a repository already carries and invent no new ones; all
-  of them belong **before** the HACS link.
-- The `---` immediately after the HACS link is the header separator. A README
-  that already uses `---` further down keeps those as section breaks — do not
-  add a second separator to the header.
+- `owner=` é sempre `roquerodrigo`; `repository=` é o nome do repositório.
+- `category=integration` para uma integração; `category=plugin` para um
+  repositório de card Lovelace.
+- O link do HACS é um parágrafo próprio, separado do bloco de badges por uma
+  linha em branco. A linha de badges e o botão "Abra a sua instância do Home
+  Assistant" são coisas diferentes e não podem ficar juntos.
+- Preserve os badges que o repositório já tem e não invente novos; todos ficam
+  **antes** do link do HACS.
+- O `---` logo após o link do HACS é o separador do cabeçalho. Um README que já
+  usa `---` mais abaixo mantém esses como quebras de seção — não adicione um
+  segundo separador ao cabeçalho.
 
-**A private repository gets no HACS link.** `my.home-assistant.io` resolves the
-target through the public GitHub API, so on a private repository the button
-lands on something HACS cannot install. It is the same reason those repositories
-call the validate workflow with `hacs: false`. Ship the title, the badges and
-the separator, and add the link when — and only when — the repository is made
-public.
+**Repositório privado não leva link do HACS.** O `my.home-assistant.io` resolve
+o destino pela API pública do GitHub, então em um repositório privado o botão
+cai em algo que o HACS não consegue instalar. É o mesmo motivo pelo qual esses
+repositórios chamam o workflow de validação com `hacs: false`. Publique o
+título, os badges e o separador, e adicione o link quando — e somente quando —
+o repositório se tornar público.
 
 ## Quality scale
 
-- `quality_scale.yaml` is **optional** and this repository does not ship one. It
-  is required only when `manifest.json` declares a `quality_scale` tier — and
-  then every claim in it must be honest (`done` only when the rule is actually
-  implemented; use `todo`/`exempt` otherwise).
-- The goal is to apply the [Bronze/Silver/Gold rules](https://developers.home-assistant.io/docs/core/integration-quality-scale/)
-  that are pertinent to the integration; Platinum is an aspiration, not a
-  review gate.
+- O `quality_scale.yaml` é **opcional** e este repositório não traz um. Ele só
+  é exigido quando o `manifest.json` declara um nível de `quality_scale` — e,
+  nesse caso, toda afirmação nele precisa ser honesta (`done` só quando a regra
+  está de fato implementada; use `todo`/`exempt` caso contrário).
+- O objetivo é aplicar as [regras Bronze/Silver/Gold](https://developers.home-assistant.io/docs/core/integration-quality-scale/)
+  pertinentes à integração; Platinum é uma aspiração, não um gate de review.
 
-## Pre-commit hooks
+## Hooks de pre-commit
 
-`pre-commit` is a dev dependency (`pyproject.toml`) and `.pre-commit-config.yaml`
-runs ruff format, ruff check and mypy as **local hooks through `uv run`**, so
-every commit uses the exact tool versions pinned in `pyproject.toml`/`uv.lock` —
-the same ones CI resolves. Never switch these to mirrored hooks
-(`ruff-pre-commit`, `mirrors-mypy`): a mirrored hook carries its own version
-pin that silently drifts from the project's. Install once per clone:
+O `pre-commit` é uma dependência de desenvolvimento (`pyproject.toml`), e o
+`.pre-commit-config.yaml` roda ruff format, ruff check e mypy como **hooks
+locais via `uv run`**, de modo que todo commit usa exatamente as versões das
+ferramentas fixadas em `pyproject.toml`/`uv.lock` — as mesmas que o CI resolve.
+Nunca troque esses hooks por espelhos (`ruff-pre-commit`, `mirrors-mypy`): um
+hook espelhado carrega o próprio pin de versão, que se afasta do pin do projeto
+sem avisar. Instale uma vez por clone:
 
 ```bash
 pre-commit install
 ```
 
-The hook runs the same lint gates as CI on every commit. Skip it only on
-emergency `git commit --no-verify` and immediately re-run `scripts/lint` (or
-the equivalent direct commands).
+O hook roda em todo commit os mesmos gates de lint do CI. Só o pule em um
+`git commit --no-verify` de emergência, e rode de novo o `scripts/lint` (ou os
+comandos diretos equivalentes) logo em seguida.
 
 ## Conventional commits
 
-All commits follow [Conventional Commits](https://www.conventionalcommits.org/),
-which `release-please` parses to bump the version and generate `CHANGELOG.md`:
+Todos os commits seguem o [Conventional Commits](https://www.conventionalcommits.org/),
+que o `release-please` interpreta para subir a versão e gerar o `CHANGELOG.md`:
 
-| Type | Meaning | Bump |
+| Tipo | Significado | Bump |
 |---|---|---|
-| `feat` | New feature | minor |
-| `fix` | Bug fix | patch |
-| `perf` | Performance improvement | patch |
-| `deps` | Dependency bump | patch |
-| `docs` | Documentation only | none |
-| `refactor` | Refactor without behavior change | none |
-| `test` | Test-only change | none |
-| `ci` | CI / tooling change | none |
-| `chore` | Anything else (rarely) | none |
+| `feat` | Nova funcionalidade | minor |
+| `fix` | Correção de bug | patch |
+| `perf` | Melhoria de desempenho | patch |
+| `deps` | Atualização de dependência | patch |
+| `docs` | Apenas documentação | nenhum |
+| `refactor` | Refatoração sem mudança de comportamento | nenhum |
+| `test` | Mudança só em testes | nenhum |
+| `ci` | Mudança de CI / ferramental | nenhum |
+| `chore` | Qualquer outra coisa (raro) | nenhum |
 
-- Subject line: imperative mood, lowercase, no trailing period.
-- Use scopes when useful: `fix(sensor): map non-enum interface values to None`.
-- A `BREAKING CHANGE:` footer (or `!` after type) bumps the major version.
+- Assunto: em pt-BR, no imperativo, em minúsculas, sem ponto final. O tipo e o
+  escopo ficam sempre em inglês.
+- Use escopos quando ajudar:
+  `fix(sensor): mapeia valores fora do enum para None`.
+- Um rodapé `BREAKING CHANGE:` (ou `!` após o tipo) sobe a versão major.
 
-## Linting and verification
+## Lint e verificação
 
-- Ruff configuration lives in `pyproject.toml` (`[tool.ruff]`) with `select = ["ALL"]`.
-- Mypy configuration lives in `pyproject.toml` (`[tool.mypy]`). Run both with
-  `uv run ruff check .` and `uv run mypy custom_components/metragen`.
-- After every change run `uv run ruff format --check .`, `uv run ruff check .`,
-  `uv run mypy custom_components/metragen` and `uv run pytest`.
-  Both gates mirror CI. `scripts/lint` is a thin wrapper that only chains
-  these four commands — running it or running the commands directly is
-  equivalent; the wrapper exists so CI, docs and local habits share one
-  source of truth.
-- Tests live in `tests/`, mirroring the production layout. The 90 % coverage
-  gate (`pyproject.toml`, `[tool.pytest.ini_options]`) prevents untested code
-  from sneaking in. When a test
-  exercises a state that is impossible under the new types, update or remove
-  it — never weaken the type to satisfy the test.
+- A configuração do Ruff fica no `pyproject.toml` (`[tool.ruff]`), com
+  `select = ["ALL"]`.
+- A configuração do mypy fica no `pyproject.toml` (`[tool.mypy]`). Rode os dois
+  com `uv run ruff check .` e `uv run mypy custom_components/metragen`.
+- Após cada mudança, rode `uv run ruff format --check .`, `uv run ruff check .`,
+  `uv run mypy custom_components/metragen` e `uv run pytest`. Os dois gates
+  espelham o CI. O `scripts/lint` é um wrapper fino que só encadeia esses
+  quatro comandos — rodá-lo ou rodar os comandos diretamente é equivalente; o
+  wrapper existe para que o CI, a documentação e o hábito local tenham uma
+  única fonte da verdade.
+- Os testes ficam em `tests/`, espelhando o layout de produção. O gate de 90 %
+  de cobertura (`pyproject.toml`, `[tool.pytest.ini_options]`) impede que
+  código sem teste entre despercebido. Quando um teste exercita um estado
+  impossível sob os novos tipos, atualize-o ou remova-o — nunca enfraqueça o
+  tipo para satisfazer o teste.

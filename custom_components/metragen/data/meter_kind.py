@@ -1,4 +1,4 @@
-"""Utilities the Metragen portal meters individually."""
+"""Insumos que o portal Metragen mede individualmente."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from enum import StrEnum
 
 
 class MetragenMeterKind(StrEnum):
-    """Utility measured by a meter."""
+    """Insumo medido por um medidor."""
 
     WATER = "water"
     GAS = "gas"

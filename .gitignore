@@ -1,4 +1,4 @@
-# artifacts
+# artefatos
 __pycache__
 .pytest*
 *.egg-info
@@ -6,7 +6,7 @@ __pycache__
 */dist/*
 
 
-# misc
+# diversos
 .coverage
 .DS_Store
 .vscode
@@ -20,6 +20,6 @@ coverage.xml
 .env
 
 
-# Home Assistant configuration
+# configuração do Home Assistant
 config/*
 !config/configuration.yaml

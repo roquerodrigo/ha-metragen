@@ -1,4 +1,4 @@
-"""Runtime data stored on entry.runtime_data."""
+"""Dados de runtime guardados em entry.runtime_data."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class MetragenData:
-    """Data stored on entry.runtime_data for the Metragen."""
+    """Dados guardados em entry.runtime_data para o Metragen."""
 
     client: MetragenApiClient
     coordinator: MetragenDataUpdateCoordinator

@@ -1,4 +1,4 @@
-"""Options flow for metragen."""
+"""Options flow do metragen."""
 
 from __future__ import annotations
 
@@ -16,13 +16,13 @@ if TYPE_CHECKING:
 
 
 class MetragenOptionsFlow(OptionsFlow):
-    """Options flow for Metragen."""
+    """Options flow do Metragen."""
 
     async def async_step_init(
         self,
         user_input: MetragenOptionsData | None = None,
     ) -> ConfigFlowResult:
-        """Manage the options."""
+        """Gerencia as opções."""
         if user_input is not None:
             return self.async_create_entry(title="", data=dict(user_input))
 

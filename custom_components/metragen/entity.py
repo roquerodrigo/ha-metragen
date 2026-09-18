@@ -1,4 +1,4 @@
-"""MetragenEntity base class."""
+"""Classe base MetragenEntity."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ _DEVICE_CLASS_BY_KIND: Mapping[MetragenMeterKind, SensorDeviceClass] = {
 
 
 class MetragenEntity(CoordinatorEntity[MetragenDataUpdateCoordinator]):
-    """Base entity bound to one meter of the resident account."""
+    """Entidade base vinculada a um medidor da conta do morador."""
 
     _attr_attribution = ATTRIBUTION
     _attr_has_entity_name = True
@@ -34,14 +34,14 @@ class MetragenEntity(CoordinatorEntity[MetragenDataUpdateCoordinator]):
         coordinator: MetragenDataUpdateCoordinator,
         meter: MetragenMeter,
     ) -> None:
-        """Bind the entity to the meter it reports."""
+        """Vincula a entidade ao medidor que ela informa."""
         super().__init__(coordinator)
         self._meter_key = meter.key
         self._meter_identity = meter
 
     @property
     def meter(self) -> MetragenMeter | None:
-        """Return the meter as last fetched, or None once the portal drops it."""
+        """Retorna o medidor da última busca, ou None quando o portal o remove."""
         payload: MetragenPayload | None = self.coordinator.data
         if payload is None:
             return None
@@ -49,23 +49,23 @@ class MetragenEntity(CoordinatorEntity[MetragenDataUpdateCoordinator]):
 
     @property
     def latest_reading(self) -> MetragenMeterReading | None:
-        """Return the most recent reading of the meter, if any."""
+        """Retorna a leitura mais recente do medidor, se houver."""
         meter = self.meter
         return None if meter is None else meter.latest
 
     @property
     def meter_device_class(self) -> SensorDeviceClass:
-        """Return the sensor device class matching the utility the meter measures."""
+        """Retorna a device class do sensor conforme o insumo que o medidor mede."""
         return _DEVICE_CLASS_BY_KIND[self._meter_identity.kind]
 
     @property
     def available(self) -> bool:
-        """Report unavailable once the portal stops listing the meter."""
+        """Informa indisponível quando o portal deixa de listar o medidor."""
         return super().available and self.latest_reading is not None
 
     @property
     def device_info(self) -> DeviceInfo:
-        """Return one device per meter, named after what it measures."""
+        """Retorna um dispositivo por medidor, nomeado pelo que ele mede."""
         meter = self._meter_identity
         return DeviceInfo(
             identifiers={
@@ -78,7 +78,7 @@ class MetragenEntity(CoordinatorEntity[MetragenDataUpdateCoordinator]):
 
     @property
     def extra_state_attributes(self) -> Mapping[str, str | int]:
-        """Expose which meter and billing month the state refers to."""
+        """Expõe a qual medidor e mês de cobrança o estado se refere."""
         latest = self.latest_reading
         if latest is None:
             return {}

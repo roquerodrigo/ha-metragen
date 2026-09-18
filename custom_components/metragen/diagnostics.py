@@ -1,4 +1,4 @@
-"""Diagnostics support for metragen."""
+"""Suporte a diagnóstico do metragen."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ async def async_get_config_entry_diagnostics(
     hass: HomeAssistant,  # noqa: ARG001
     entry: MetragenConfigEntry,
 ) -> MetragenDiagnosticsPayload:
-    """Return diagnostics for a config entry."""
+    """Retorna o diagnóstico de uma config entry."""
     redacted_data = cast(
         "Mapping[str, str]",
         async_redact_data(dict(entry.data), set(TO_REDACT)),

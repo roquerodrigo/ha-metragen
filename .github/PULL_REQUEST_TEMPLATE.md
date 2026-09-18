@@ -1,24 +1,25 @@
-## Summary
+## Resumo
 
-<!-- 1-3 bullets describing what changed and why. -->
+<!-- 1 a 3 itens descrevendo o que mudou e por quê. -->
 
-## Type of change
+## Tipo de mudança
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Refactor / cleanup
-- [ ] Documentation
-- [ ] Tooling / CI
+- [ ] Correção de bug
+- [ ] Nova funcionalidade
+- [ ] Refatoração / limpeza
+- [ ] Documentação
+- [ ] Ferramental / CI
 
-## Test plan
+## Plano de teste
 
-- [ ] `uv run ruff format --check .`, `uv run ruff check .` and `uv run mypy custom_components/metragen` pass
-- [ ] `pytest` passes with the 90 % coverage gate
-- [ ] All translation locales updated (if user-facing strings changed)
+- [ ] `uv run ruff format --check .`, `uv run ruff check .` e `uv run mypy custom_components/metragen` passam
+- [ ] `pytest` passa com o gate de 90 % de cobertura
+- [ ] Todos os locales de tradução atualizados (se strings voltadas ao usuário mudaram)
 
 ## Checklist
 
-- [ ] Code is in English (only `translations/<locale>.json` follows the locale)
-- [ ] One top-level class per file
-- [ ] CLAUDE.md / README updated if architecture or workflow changed
-- [ ] `manifest.json` version bumped if releasing
+- [ ] O código está em inglês; docstrings, comentários, commits e este PR estão em pt-BR
+- [ ] Termos nativos do domínio não foram traduzidos
+- [ ] Uma classe de nível superior por arquivo
+- [ ] CLAUDE.md / README atualizados se a arquitetura ou o fluxo de trabalho mudou
+- [ ] Versão do `manifest.json` atualizada, se for uma release

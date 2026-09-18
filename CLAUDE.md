@@ -1,25 +1,29 @@
 # CLAUDE.md
 
-Guidance for Claude Code (claude.ai/code) agents working in this repository.
+Orientações para agentes do Claude Code (claude.ai/code) que trabalham neste repositório.
 
-## Always read `CODE_STYLE.md` first
+## Sempre leia o `CODE_STYLE.md` primeiro
 
-Before creating, renaming or restructuring any file/class/function, **read [`CODE_STYLE.md`](./CODE_STYLE.md)**. It is the single source of truth for conventions: language, file organisation, naming, typing, properties vs `__init__`, imports, docstrings, comments, coordinator pattern, repairs/diagnostics layout, translations, lint workflow.
+Antes de criar, renomear ou reestruturar qualquer arquivo/classe/função, **leia o [`CODE_STYLE.md`](./CODE_STYLE.md)**. Ele é a única fonte da verdade para as convenções: idioma, organização de arquivos, nomenclatura, tipagem, properties vs `__init__`, imports, docstrings, comentários, padrão do coordinator, layout de reparos/diagnóstico, traduções, fluxo de lint.
 
-For user-facing topics (entities, installation, how the portal is driven, layout diagram, useful commands, CI list), see [`README.md`](./README.md).
+Para os assuntos voltados ao usuário (entidades, instalação, como o portal é acessado, diagrama de estrutura, comandos úteis, lista de CI), veja o [`README.md`](./README.md).
 
-This file deliberately avoids restating those rules — it only adds:
+Este arquivo evita, de propósito, repetir essas regras — ele só acrescenta:
 
-1. The verification workflow agents must run after every change.
-2. The architectural reasoning that is not obvious from `CODE_STYLE.md` alone.
+1. O fluxo de verificação que os agentes devem rodar após cada mudança.
+2. O raciocínio de arquitetura que não fica óbvio só pelo `CODE_STYLE.md`.
 
-## Origin
+## Idioma
 
-This repository was generated from [`ha-integration-blueprint`](https://github.com/roquerodrigo/ha-integration-blueprint). The copy was one-time and one-directional: conventions, CI and tooling evolve here independently, and blueprint changes only arrive if someone ports them over by hand.
+O `hacs.json` declara `"country": ["BR"]`, então o pt-BR é o idioma deste repositório: documentação, docstrings, comentários, mensagens de commit, títulos e descrições de PR, changelog e toda comunicação pública. O código continua em inglês — identificadores, nomes de branch, mensagens de log e o tipo/escopo do Conventional Commit —, e os termos nativos do portal (`Medidor`, `Leitura`, `AreaMorador`, `FiltroAno`) nunca são traduzidos. Os detalhes estão na seção "Idioma" do `CODE_STYLE.md`.
 
-## Verification workflow
+## Origem
 
-**After every code change, always run lint then tests, in that order, before declaring the task done. Either run `scripts/lint` (a thin wrapper that only chains the four commands) or run them directly:**
+Este repositório foi gerado a partir do [`ha-integration-blueprint`](https://github.com/roquerodrigo/ha-integration-blueprint). A cópia foi única e unidirecional: convenções, CI e ferramental evoluem aqui de forma independente, e mudanças do blueprint só chegam se alguém as portar à mão.
+
+## Fluxo de verificação
+
+**Após cada mudança de código, rode sempre o lint e depois os testes, nessa ordem, antes de dar a tarefa por concluída. Rode o `scripts/lint` (um wrapper fino que só encadeia os quatro comandos) ou rode-os diretamente:**
 
 ```bash
 uv run ruff format --check .
@@ -28,31 +32,31 @@ uv run mypy custom_components/metragen
 uv run pytest
 ```
 
-- Lint runs `ruff format`, `ruff check` and `mypy` — all configured in `pyproject.toml`. Fix any failure and re-run before moving on.
-- `pytest` enforces a **90 % coverage gate** (`--cov-fail-under` in `pyproject.toml`).
+- O lint roda `ruff format`, `ruff check` e `mypy` — todos configurados no `pyproject.toml`. Corrija qualquer falha e rode de novo antes de seguir.
+- O `pytest` impõe um **gate de 90 % de cobertura** (`--cov-fail-under` no `pyproject.toml`).
 
-Both gates mirror CI (`.github/workflows/ci.yml`). Skip this only when the change literally cannot affect lint or tests (e.g., README-only edits).
+Os dois gates espelham o CI (`.github/workflows/ci.yml`). Só pule isso quando a mudança literalmente não puder afetar o lint nem os testes (ex.: edições apenas no README).
 
-## Bumping the Home Assistant version
+## Atualizando a versão do Home Assistant
 
-The Home Assistant version is pinned in two places and **must be updated together**, otherwise CI, HACS and the test harness drift apart:
+A versão do Home Assistant é fixada em dois lugares e **precisa ser atualizada em conjunto**; caso contrário, o CI, o HACS e o harness de testes se afastam:
 
-1. `pyproject.toml` `[dependency-groups] dev` — `homeassistant==<X.Y.Z>` (runtime/CI lint + mypy) **and** `pytest-homeassistant-custom-component==<matching release>` (the test harness ships its own pinned `homeassistant`; the two pins must come from the same HA release, otherwise lint and tests resolve different cores).
-2. `hacs.json` — `"homeassistant": "<X.Y.Z>"` (minimum HA core enforced by HACS).
+1. `pyproject.toml`, `[dependency-groups] dev` — `homeassistant==<X.Y.Z>` (runtime/lint do CI + mypy) **e** `pytest-homeassistant-custom-component==<release correspondente>` (o harness de testes traz o próprio `homeassistant` fixado; os dois pins precisam vir da mesma release do HA, senão o lint e os testes resolvem cores diferentes).
+2. `hacs.json` — `"homeassistant": "<X.Y.Z>"` (core mínimo do HA imposto pelo HACS).
 
-Verify the pairing on PyPI before committing: the `requires_dist` of `pytest-homeassistant-custom-component` must list the same `homeassistant==<X.Y.Z>` you pinned in `pyproject.toml`.
+Confira o pareamento no PyPI antes de commitar: o `requires_dist` do `pytest-homeassistant-custom-component` precisa listar o mesmo `homeassistant==<X.Y.Z>` que você fixou no `pyproject.toml`.
 
-## Conventions not obvious from the code
+## Convenções que não ficam óbvias pelo código
 
-The integration follows the HA `DataUpdateCoordinator` pattern; the module-by-module layout is in `README.md`. A few choices are not evident from reading a single file:
+A integração segue o padrão `DataUpdateCoordinator` do HA; o layout módulo a módulo está no `README.md`. Algumas escolhas não ficam evidentes lendo um único arquivo:
 
-- State lives on `entry.runtime_data` (auto-discarded on unload), **never** on `hass.data`.
-- `data/__init__.py` holds the `type` aliases (`MetragenConfigEntry`, `MetragenPayload`, `Json*`) **and** re-exports every symbol from the sibling modules, so downstream code imports everything from `.data`.
-- The portal is a cookie-authenticated ASP.NET MVC site with no public API. `api.py` owns the whole protocol: the resident login form (`Portal/AcessoAoPortal`, code or e-mail plus password — not the `UserName`/`Password` form at `/metragen/`, which is the administration login), the server-side year selection (`FiltroAno`) and the Kendo grid reads. Nothing above `api.py` knows about HTML or cookies.
-- The client authenticates lazily. Every grid read that comes back with an empty body raises `MetragenApiClientAuthenticationError`; `async_get_readings` catches that once, logs in and retries. A second empty body, or a login the portal rejects, propagates and the coordinator turns it into `ConfigEntryAuthFailed`.
-- Each config entry gets its own `aiohttp` session from `async_create_clientsession` so the portal cookies never land in the shared session; Home Assistant detaches it when the entry unloads, so the integration must not close it.
-- The coordinator payload is `Mapping[str, MetragenMeter]` keyed by `MetragenMeter.key` (`<kind>_<slugified code>`). The hot-water meter appears under both kinds (`water_aq…` for the water bill, `gas_aq…` for the heating charge) — that is what the portal reports, not a bug.
-- Devices are one per meter; the device name comes from the `device.<translation_key>.name` translations with the meter code as placeholder, chosen by `MetragenMeter.device_translation_key` from the `AF`/`AQ` code prefixes.
-- Meters are discovered dynamically: `sensor/__init__.py` keeps the set of known meter keys and adds entities for new ones on every coordinator update. Meters the portal stops listing keep their entities, which report unavailable; `async_remove_config_entry_device` lets the user delete them.
-- Monthly history goes to long-term statistics, not to entities. `statistics.py` (`MetragenStatisticsImporter`, run by the coordinator after every successful refresh) writes the external statistics `metragen:<slugified code>_<kind>` (m³, `unit_class` volume) and `..._cost` (BRL) with `async_add_external_statistics`, named after the meter device through the cached `device` translations (plus the `monthly_cost` entity name for the cost series) so the energy picker reads like the device list. Ids carry no account prefix on purpose: meter codes include the apartment number, and shorter ids were an explicit user request. The first import walks back year by year until the portal returns no meters (`MAX_HISTORY_YEARS` cap); later imports read the last stored row with `get_last_statistics` and append only newer months, continuing its running `sum` — revised months are never rewritten. Portal errors during the import are logged and retried on the next refresh; they never fail the entity update. `manifest.json` therefore declares `recorder` in `dependencies`, and every test that sets an entry up needs the `recorder_mock` fixture.
-- Reauth is wired to fire when the coordinator raises `ConfigEntryAuthFailed`. Register Repairs issues (see the sample helper in `repairs.py`) from the coordinator/setup when you detect a recoverable problem; issue strings live under `issues.<issue_id>` in the translation files.
+- O estado mora em `entry.runtime_data` (descartado automaticamente no unload), **nunca** em `hass.data`.
+- O `data/__init__.py` guarda os aliases `type` (`MetragenConfigEntry`, `MetragenPayload`, `Json*`) **e** reexporta todos os símbolos dos módulos irmãos, de modo que o restante do código importa tudo de `.data`.
+- O portal é um site ASP.NET MVC autenticado por cookie, sem API pública. O `api.py` é dono de todo o protocolo: o formulário de login do morador (`Portal/AcessoAoPortal`, código ou e-mail mais senha — não o formulário `UserName`/`Password` em `/metragen/`, que é o login da administração), a seleção de ano no servidor (`FiltroAno`) e a leitura dos grids Kendo. Nada acima do `api.py` sabe de HTML ou de cookies.
+- O cliente autentica sob demanda. Toda leitura de grid que volta com corpo vazio levanta `MetragenApiClientAuthenticationError`; o `async_get_readings` captura isso uma vez, faz login e tenta de novo. Um segundo corpo vazio, ou um login que o portal rejeita, se propaga, e o coordinator o transforma em `ConfigEntryAuthFailed`.
+- Cada config entry recebe a própria sessão `aiohttp` de `async_create_clientsession`, para que os cookies do portal nunca caiam na sessão compartilhada; o Home Assistant a desvincula quando a entry é descarregada, então a integração não deve fechá-la.
+- O payload do coordinator é `Mapping[str, MetragenMeter]`, indexado por `MetragenMeter.key` (`<kind>_<código em slug>`). O medidor de água quente aparece nos dois tipos (`water_aq…` para a conta de água, `gas_aq…` para a cobrança do aquecimento) — é o que o portal informa, não um bug.
+- Há um dispositivo por medidor; o nome do dispositivo vem das traduções `device.<translation_key>.name`, com o código do medidor como placeholder, escolhidas por `MetragenMeter.device_translation_key` a partir dos prefixos de código `AF`/`AQ`.
+- Os medidores são descobertos dinamicamente: o `sensor/__init__.py` mantém o conjunto das chaves de medidor conhecidas e adiciona entidades para as novas a cada atualização do coordinator. Medidores que o portal deixa de listar mantêm as entidades, que ficam indisponíveis; o `async_remove_config_entry_device` permite ao usuário excluí-los.
+- O histórico mensal vai para as estatísticas de longo prazo, não para entidades. O `statistics.py` (`MetragenStatisticsImporter`, executado pelo coordinator após cada atualização bem-sucedida) grava as estatísticas externas `metragen:<código em slug>_<kind>` (m³, `unit_class` volume) e `..._cost` (BRL) com `async_add_external_statistics`, nomeadas como o dispositivo do medidor pelas traduções `device` em cache (mais o nome da entidade `monthly_cost` na série de custo), para que o seletor do painel de energia leia igual à lista de dispositivos. Os ids não levam prefixo de conta de propósito: os códigos de medidor incluem o número do apartamento, e ids mais curtos foram um pedido explícito do usuário. A primeira importação volta ano a ano até o portal não retornar medidores (limite `MAX_HISTORY_YEARS`); as seguintes leem a última linha armazenada com `get_last_statistics` e só acrescentam meses mais novos, continuando o `sum` acumulado — meses revisados nunca são reescritos. Erros do portal durante a importação são logados e tentados de novo na próxima atualização; eles nunca fazem a atualização das entidades falhar. Por isso o `manifest.json` declara `recorder` em `dependencies`, e todo teste que configura uma entry precisa da fixture `recorder_mock`.
+- A reautenticação está ligada para disparar quando o coordinator levanta `ConfigEntryAuthFailed`. Registre issues de Reparos (veja o helper de exemplo em `repairs.py`) a partir do coordinator/setup ao detectar um problema recuperável; as strings das issues ficam em `issues.<issue_id>` nos arquivos de tradução.

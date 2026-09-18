@@ -1,4 +1,4 @@
-"""Typed top-level shape returned by async_get_config_entry_diagnostics."""
+"""Formato tipado de topo retornado por async_get_config_entry_diagnostics."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 class MetragenDiagnosticsPayload(TypedDict):
-    """Top-level shape returned by async_get_config_entry_diagnostics."""
+    """Formato de topo retornado por async_get_config_entry_diagnostics."""
 
     entry: MetragenDiagnosticsEntry
     coordinator_data: Mapping[str, JsonObject] | None

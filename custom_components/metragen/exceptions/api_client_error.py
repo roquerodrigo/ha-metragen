@@ -1,7 +1,7 @@
-"""Base API client exception."""
+"""Exceção base do cliente da API."""
 
 from __future__ import annotations
 
 
 class MetragenApiClientError(Exception):
-    """Exception to indicate a general API error."""
+    """Exceção que indica um erro genérico da API."""

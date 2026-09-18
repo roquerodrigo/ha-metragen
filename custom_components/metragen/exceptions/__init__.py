@@ -1,4 +1,4 @@
-"""Exception classes for the metragen API client."""
+"""Classes de exceção do cliente da API do metragen."""
 
 from __future__ import annotations
 

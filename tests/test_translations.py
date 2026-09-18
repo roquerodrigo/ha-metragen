@@ -53,7 +53,7 @@ def test_translation_locale_matches_en_keys(locale):
 
 
 def _authored_entity_keys() -> set[tuple[str, str]]:
-    """Return every `(platform, key)` pair `en.json` defines under `entity`."""
+    """Retorna todo par `(platform, key)` que o `en.json` define em `entity`."""
     entity_section = json.loads(
         (TRANSLATIONS_DIR / "en.json").read_text(encoding="utf-8"),
     )["entity"]
@@ -67,14 +67,14 @@ async def test_entity_translation_keys_and_authored_names_agree(
     setup_integration,
 ):
     """
-    Every translation key an entity asks for is authored, and vice versa.
+    Toda chave de tradução que uma entidade pede está escrita, e vice-versa.
 
-    Read from the entity registry rather than the classes: Home
-    Assistant rewrites `_attr_translation_key` into a property, so
-    inspecting the class attribute finds a descriptor and quietly checks
-    nothing. Comparing the locales against each other cannot catch this
-    either — a key missing from both sides matches, and the entity falls
-    back to its device-class name while the authored one never shows.
+    A leitura vem do entity registry, não das classes: o Home Assistant
+    reescreve `_attr_translation_key` como property, então inspecionar o
+    atributo da classe encontra um descriptor e, em silêncio, não verifica
+    nada. Comparar os locales entre si também não pega isso — uma chave
+    ausente dos dois lados bate, e a entidade recai no nome da device class
+    enquanto o nome escrito nunca aparece.
     """
     from homeassistant.helpers import entity_registry as er
 

@@ -1,4 +1,4 @@
-"""Constants for metragen."""
+"""Constantes do metragen."""
 
 from __future__ import annotations
 

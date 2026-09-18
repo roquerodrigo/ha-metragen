@@ -1,4 +1,4 @@
-"""Metragen resident portal client."""
+"""Cliente do portal do morador Metragen."""
 
 from __future__ import annotations
 
@@ -44,23 +44,23 @@ _GRID_READ_FORM: Mapping[str, str] = {
 
 def _sanitized_error_text(exception: BaseException) -> str:
     """
-    Strip URL query strings from upstream error text before it reaches the log.
+    Remove a query string das URLs no texto de erro antes que ele chegue ao log.
 
-    HTTP client libraries quote the request URL in their exception messages,
-    and Home Assistant writes the message of an ``UpdateFailed`` to the log on
-    every failed refresh. Redact the query string on the way out instead of
-    trusting every future call site to remember.
+    Bibliotecas de cliente HTTP citam a URL da requisição nas mensagens de
+    exceção, e o Home Assistant grava no log a mensagem de um ``UpdateFailed``
+    a cada atualização que falha. A query string é ocultada na saída, em vez de
+    confiar que todo ponto de chamada futuro se lembre disso.
     """
     return _URL_QUERY_STRING.sub("?<redacted>", str(exception))
 
 
 def _cubic_meters(raw_liters: str | None) -> float:
-    """Convert a raw counter value, reported in liters, to cubic meters."""
+    """Transforma o valor bruto do contador, informado em litros, em metros cúbicos."""
     return round(float(raw_liters or 0) / _LITERS_PER_CUBIC_METER, 3)
 
 
 def _reading_from_row(row: MetragenReadingRow) -> MetragenMeterReading:
-    """Build a reading from one grid row."""
+    """Monta uma leitura a partir de uma linha do grid."""
     return MetragenMeterReading(
         year=row["Ano"],
         month=row["Mes"],
@@ -75,7 +75,7 @@ def _meters_from_rows(
     kind: MetragenMeterKind,
     rows: list[MetragenReadingRow],
 ) -> tuple[MetragenMeter, ...]:
-    """Group grid rows by meter code, ordering each meter's readings by month."""
+    """Agrupa as linhas do grid por código de medidor, ordenando as leituras por mês."""
     readings_by_code: dict[str, list[MetragenMeterReading]] = {}
     for row in rows:
         readings_by_code.setdefault(row["Medidor"], []).append(_reading_from_row(row))
@@ -93,14 +93,15 @@ def _meters_from_rows(
 
 class MetragenApiClient:
     """
-    Client for the Metragen resident portal.
+    Cliente do portal do morador Metragen.
 
-    The portal is a cookie-authenticated ASP.NET MVC site, so the client must
-    own a session with its own cookie jar and re-authenticate whenever the
-    portal answers a grid request with an empty body — its way of saying the
-    session lapsed. Residents sign in through ``Portal/AcessoAoPortal`` with
-    the code or e-mail they registered; a rejected login redirects back to the
-    login page instead of failing the request.
+    O portal é um site ASP.NET MVC autenticado por cookie, então o cliente
+    precisa ter uma sessão com cookie jar próprio e se reautenticar sempre que
+    o portal responder a uma requisição de grid com corpo vazio — a forma dele
+    de dizer que a sessão expirou. O morador entra por
+    ``Portal/AcessoAoPortal`` com o código ou e-mail cadastrado; um login
+    rejeitado redireciona de volta à página de login em vez de falhar a
+    requisição.
     """
 
     def __init__(
@@ -109,13 +110,13 @@ class MetragenApiClient:
         password: str,
         session: aiohttp.ClientSession,
     ) -> None:
-        """Initialize."""
+        """Inicializa."""
         self._username = username
         self._password = password
         self._session = session
 
     async def async_login(self) -> None:
-        """Authenticate against the portal, raising when it rejects the credentials."""
+        """Autentica no portal, levantando erro quando ele rejeita as credenciais."""
         landing_page = await self._request_text(
             "post",
             f"{API_BASE_URL}/Portal/AcessoAoPortal",
@@ -127,7 +128,7 @@ class MetragenApiClient:
         LOGGER.debug("Logged in to the Metragen portal")
 
     async def async_get_readings(self, year: int) -> MetragenReadings:
-        """Fetch the water and gas meters of one year, logging in when needed."""
+        """Busca os medidores de água e gás de um ano, fazendo login quando preciso."""
         try:
             return await self._fetch_readings(year)
         except MetragenApiClientAuthenticationError:
@@ -136,7 +137,7 @@ class MetragenApiClient:
             return await self._fetch_readings(year)
 
     async def _fetch_readings(self, year: int) -> MetragenReadings:
-        """Select the year on the portal session and read both meter grids."""
+        """Seleciona o ano na sessão do portal e lê os dois grids de medidores."""
         await self._request_text("post", f"{API_BASE_URL}/Portal/AreaMorador", data={})
         await self._request_text(
             "post",
@@ -155,7 +156,7 @@ class MetragenApiClient:
         )
 
     async def _read_grid(self, url: str) -> list[MetragenReadingRow]:
-        """Read one Kendo grid, treating an empty body as a lapsed session."""
+        """Lê um grid Kendo, tratando corpo vazio como sessão expirada."""
         text = await self._request_text("post", url, data=_GRID_READ_FORM)
         if not text.strip():
             msg = (
@@ -179,7 +180,7 @@ class MetragenApiClient:
         url: str,
         data: Mapping[str, str] | None = None,
     ) -> str:
-        """Perform an HTTP request and return the response body as text."""
+        """Faz uma requisição HTTP e retorna o corpo da resposta como texto."""
         try:
             async with asyncio.timeout(_REQUEST_TIMEOUT_SECONDS):
                 response = await self._session.request(

@@ -1,12 +1,12 @@
 [project]
-# This repo is a Home Assistant custom integration delivered as
-# ``custom_components/metragen/``, not a pip-installable
-# package. The ``[project]`` block here exists so uv recognises the
-# directory as a managed project; ``[tool.uv] package = false`` keeps
-# uv from trying to build/install it.
+# Este repositório é uma integração custom do Home Assistant entregue como
+# ``custom_components/metragen/``, não um pacote instalável por pip. O bloco
+# ``[project]`` existe para que o uv reconheça o diretório como um projeto
+# gerenciado; ``[tool.uv] package = false`` impede o uv de tentar
+# buildar/instalar o projeto.
 name = "ha-metragen"
 version = "0.1.1"
-description = "Home Assistant integration for the Metragen water and gas metering portal"
+description = "Integração do Home Assistant para o portal Metragen de medição de água e gás"
 requires-python = ">=3.14.2"
 
 [tool.uv]
@@ -55,22 +55,22 @@ module = "tests.*"
 disallow_untyped_defs = false
 check_untyped_defs = false
 
-# Ruff config mirrors Home Assistant core's pyproject.toml.
+# A configuração do Ruff espelha o pyproject.toml do core do Home Assistant.
 [tool.ruff]
 target-version = "py314"
 
 [tool.ruff.format]
-exclude = ["*.md"]  # ruff 0.16 formats Python blocks in Markdown; docs keep their own layout
+exclude = ["*.md"]  # o ruff 0.16 formata blocos Python em Markdown; a documentação mantém o próprio layout
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
-    "D203",    # no-blank-line-before-class (incompatible with formatter)
-    "D212",    # multi-line-summary-first-line (incompatible with formatter)
-    "COM812",  # incompatible with formatter
-    "ISC001",  # incompatible with formatter
-    "CPY001",  # copyright headers are not used in this project
+    "ANN401",  # expressões tipadas dinamicamente (typing.Any) são proibidas
+    "D203",    # no-blank-line-before-class (incompatível com o formatter)
+    "D212",    # multi-line-summary-first-line (incompatível com o formatter)
+    "COM812",  # incompatível com o formatter
+    "ISC001",  # incompatível com o formatter
+    "CPY001",  # este projeto não usa cabeçalhos de copyright
 ]
 
 [tool.ruff.lint.flake8-pytest-style]
@@ -83,20 +83,20 @@ keep-runtime-typing = true
 max-complexity = 25
 
 [tool.ruff.lint.per-file-ignores]
-# The runtime-data dataclass and the sensor package live in subpackages but
-# reference the ApiClient, coordinator and base entity from the parent package;
-# a relative parent import is the only form that resolves under both mypy and
-# the HA runtime.
+# A dataclass de runtime e o pacote de sensores moram em subpacotes, mas
+# referenciam o ApiClient, o coordinator e a entidade base do pacote pai; o
+# import relativo ao pai é a única forma que resolve tanto no mypy quanto no
+# runtime do HA.
 "**/data/runtime.py" = ["TID252"]
 "**/sensor/*.py" = ["TID252"]
 "tests/**" = [
-    "S101",     # assert is normal in pytest
-    "S105",     # hardcoded-password-string is fine for fake test credentials
-    "S106",     # hardcoded-password-func-arg is fine for fake test credentials
-    "D",        # no docstrings required in tests
-    "ANN",      # no type annotations required in tests
-    "ARG001",   # fixtures are used implicitly by pytest
-    "PLC0415",  # local imports inside fixtures are intentional
-    "SLF001",   # testing private HA attrs and internal methods is intentional
-    "PLR2004",  # magic numbers in test assertions are fine
+    "S101",     # assert é normal no pytest
+    "S105",     # hardcoded-password-string é aceitável em credenciais falsas de teste
+    "S106",     # hardcoded-password-func-arg é aceitável em credenciais falsas de teste
+    "D",        # testes não exigem docstrings
+    "ANN",      # testes não exigem anotações de tipo
+    "ARG001",   # o pytest usa as fixtures implicitamente
+    "PLC0415",  # imports locais dentro de fixtures são intencionais
+    "SLF001",   # testar atributos privados e métodos internos do HA é intencional
+    "PLR2004",  # números mágicos em asserts de teste são aceitáveis
 ]

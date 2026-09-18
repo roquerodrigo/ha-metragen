@@ -83,7 +83,7 @@ def _response(body: str) -> MagicMock:
 
 
 class FakePortal:
-    """Routes requests like the portal does and tracks the session state."""
+    """Roteia as requisições como o portal faz e acompanha o estado da sessão."""
 
     def __init__(
         self,

@@ -1,4 +1,4 @@
-"""A Metragen meter and the readings the portal reports for it."""
+"""Um medidor Metragen e as leituras que o portal informa para ele."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ _COLD_WATER_CODE_PREFIX = "AF"
 
 @dataclass(frozen=True)
 class MetragenMeter:
-    """Meter identified by its portal code, with readings in chronological order."""
+    """Medidor identificado pelo código do portal, com leituras em ordem cronológica."""
 
     kind: MetragenMeterKind
     code: str
@@ -26,17 +26,17 @@ class MetragenMeter:
 
     @property
     def key(self) -> str:
-        """Return the identifier that stays stable across refreshes."""
+        """Retorna o identificador que permanece estável entre atualizações."""
         return f"{self.kind}_{slugify(self.code)}"
 
     @property
     def latest(self) -> MetragenMeterReading | None:
-        """Return the most recent reading, if the portal reported any."""
+        """Retorna a leitura mais recente, se o portal informou alguma."""
         return self.readings[-1] if self.readings else None
 
     @property
     def yearly_consumption(self) -> float:
-        """Return the consumption accumulated in the year of the latest reading."""
+        """Retorna o consumo acumulado no ano da leitura mais recente."""
         latest = self.latest
         if latest is None:
             return 0.0
@@ -52,11 +52,11 @@ class MetragenMeter:
     @property
     def device_translation_key(self) -> str:
         """
-        Return the translation key naming what the meter measures.
+        Retorna a chave de tradução que nomeia o que o medidor mede.
 
-        Brazilian individualized metering labels meters with a prefix for hot
-        (``AQ``, água quente) and cold (``AF``, água fria) water; anything else
-        falls back to the plain kind.
+        A medição individualizada rotula os medidores com um prefixo para água
+        quente (``AQ``) e água fria (``AF``); qualquer outro código recai no
+        tipo puro.
         """
         if self.kind is MetragenMeterKind.GAS:
             return "gas_meter"

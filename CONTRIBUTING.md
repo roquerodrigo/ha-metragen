@@ -1,55 +1,57 @@
-# Contribution guidelines
+# Diretrizes de contribuição
 
-Contributing to this project should be as easy and transparent as possible, whether it's:
+Contribuir com este projeto deve ser o mais fácil e transparente possível, seja para:
 
-- Reporting a bug
-- Discussing the current state of the code
-- Submitting a fix
-- Proposing new features
+- Relatar um bug
+- Discutir o estado atual do código
+- Enviar uma correção
+- Propor novas funcionalidades
 
-## Github is used for everything
+As contribuições são escritas em português do Brasil: issues, comentários, mensagens de commit e descrições de PR. O código permanece em inglês — veja a seção "Idioma" do [`CODE_STYLE.md`](./CODE_STYLE.md).
 
-Github is used to host code, to track issues and feature requests, as well as accept pull requests.
+## O GitHub é usado para tudo
 
-Pull requests are the best way to propose changes to the codebase.
+O GitHub hospeda o código, acompanha issues e pedidos de funcionalidade e recebe os pull requests.
 
-1. Fork the repo and create your branch from `main`.
-2. If you've changed something, update the documentation.
-3. Make sure your code lints (run `uv run ruff format --check .`, `uv run ruff check .` and `uv run mypy custom_components/metragen`).
-4. Test your contribution.
-5. Issue that pull request!
+Pull requests são a melhor forma de propor mudanças no código.
 
-## Any contributions you make will be under the MIT Software License
+1. Faça um fork do repositório e crie a sua branch a partir da `main`.
+2. Se você mudou algo, atualize a documentação.
+3. Garanta que o código passa no lint (rode `uv run ruff format --check .`, `uv run ruff check .` e `uv run mypy custom_components/metragen`).
+4. Teste a sua contribuição.
+5. Abra o pull request!
 
-In short, when you submit code changes, your submissions are understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
+## Toda contribuição fica sob a licença MIT
 
-## Report bugs using Github's [issues](../../issues)
+Em resumo: ao enviar mudanças de código, entende-se que elas ficam sob a mesma [licença MIT](http://choosealicense.com/licenses/mit/) que cobre o projeto. Fale com os mantenedores se isso for um problema.
 
-GitHub issues are used to track public bugs.
-Report a bug by [opening a new issue](../../issues/new/choose); it's that easy!
+## Relate bugs pelas [issues](../../issues) do GitHub
 
-## Write bug reports with detail, background, and sample code
+As issues do GitHub são usadas para acompanhar os bugs públicos.
+Relate um bug [abrindo uma nova issue](../../issues/new/choose); é simples assim!
 
-**Great Bug Reports** tend to have:
+## Escreva relatos de bug com detalhes, contexto e código de exemplo
 
-- A quick summary and/or background
-- Steps to reproduce
-  - Be specific!
-  - Give sample code if you can.
-- What you expected would happen
-- What actually happens
-- Notes (possibly including why you think this might be happening, or stuff you tried that didn't work)
+**Bons relatos de bug** costumam ter:
 
-## Use a Consistent Coding Style
+- Um resumo rápido e/ou o contexto
+- Passos para reproduzir
+  - Seja específico!
+  - Inclua código de exemplo, se puder.
+- O que você esperava que acontecesse
+- O que acontece de fato
+- Observações (incluindo, se for o caso, por que você acha que isso acontece ou o que você tentou e não funcionou)
 
-The project uses [ruff](https://docs.astral.sh/ruff/) (config in `pyproject.toml`). Run `uv run ruff format --check .`, `uv run ruff check .` and `uv run mypy custom_components/metragen` before sending a PR.
+## Use um estilo de código consistente
 
-## Test your code modification
+O projeto usa o [ruff](https://docs.astral.sh/ruff/) (configurado no `pyproject.toml`). Rode `uv run ruff format --check .`, `uv run ruff check .` e `uv run mypy custom_components/metragen` antes de enviar um PR.
 
-This template is based on [metragen template](https://github.com/ludeeus/metragen).
+## Teste a sua modificação
 
-Run `scripts/setup` once to create the `uv`-managed virtual environment, then `scripts/develop` to start a stand-alone Home Assistant instance in debug mode with the integration loaded and the included [`configuration.yaml`](./config/configuration.yaml) file.
+Este template é baseado no [metragen template](https://github.com/ludeeus/metragen).
 
-## License
+Rode `scripts/setup` uma vez para criar o ambiente virtual gerenciado pelo `uv` e, depois, `scripts/develop` para iniciar uma instância independente do Home Assistant em modo debug, com a integração carregada e o arquivo [`configuration.yaml`](./config/configuration.yaml) incluído.
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+## Licença
+
+Ao contribuir, você concorda que as suas contribuições serão licenciadas sob a licença MIT do projeto.

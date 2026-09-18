@@ -1,4 +1,4 @@
-"""Long-term statistics import for the monthly history the portal keeps."""
+"""Importação do histórico mensal do portal para as estatísticas de longo prazo."""
 
 from __future__ import annotations
 
@@ -40,25 +40,27 @@ type _LastRow = tuple[datetime, float]
 
 
 def _period_start(reading: MetragenMeterReading) -> datetime:
-    """Return the bucket a reading belongs to: local midnight starting its month."""
+    """Retorna o bucket da leitura: a meia-noite local que inicia o mês dela."""
     return dt_util.start_of_local_day(reading.period_start)
 
 
 class MetragenStatisticsImporter:
     """
-    Import the monthly readings of every meter as external statistics.
+    Importa as leituras mensais de cada medidor como estatísticas externas.
 
-    A sensor state carries the latest reading only, while the portal keeps one
-    row per month. Long-term statistics are where Home Assistant stores that
-    kind of history: they feed the energy dashboard and the statistics graph
-    card. Each meter gets ``metragen:<code>_<kind>`` in cubic meters and
-    ``metragen:<code>_<kind>_cost`` in BRL, named like the meter's device so
-    the energy dashboard picker reads the same as the device list. The first
-    import walks back one year at a time until the portal reports no meters
-    at all; later imports only append months newer than the last stored row,
-    so a month the portal revises afterwards is never rewritten. The metadata
-    is sent on every refresh even without new rows, so the series follow a
-    renamed device or a changed language.
+    O estado de um sensor traz só a leitura mais recente, enquanto o portal
+    guarda uma linha por mês. É nas estatísticas de longo prazo que o Home
+    Assistant armazena esse tipo de histórico: elas alimentam o painel de
+    energia e o card de gráfico de estatísticas. Cada medidor recebe
+    ``metragen:<code>_<kind>`` em metros cúbicos e
+    ``metragen:<code>_<kind>_cost`` em BRL, com o mesmo nome do dispositivo do
+    medidor, para que o seletor do painel de energia leia igual à lista de
+    dispositivos. A primeira importação volta um ano de cada vez até o portal
+    não informar nenhum medidor; as seguintes só acrescentam meses mais novos
+    que a última linha armazenada, então um mês que o portal revise depois
+    nunca é reescrito. Os metadados são enviados a cada atualização, mesmo sem
+    linhas novas, para que as séries acompanhem um dispositivo renomeado ou
+    uma troca de idioma.
     """
 
     def __init__(
@@ -67,14 +69,14 @@ class MetragenStatisticsImporter:
         client: MetragenApiClient,
         current_year: int,
     ) -> None:
-        """Bind the importer to the account whose meters it imports."""
+        """Vincula o importador à conta cujos medidores ele importa."""
         self._hass = hass
         self._client = client
         self._current_year = current_year
         self._readings_by_year: dict[int, MetragenReadings] = {}
 
     async def async_import(self, meters: Iterable[MetragenMeter]) -> None:
-        """Import every meter, postponing the rest when the portal fails."""
+        """Importa cada medidor, adiando o restante quando o portal falha."""
         for meter in meters:
             try:
                 await self._async_import_meter(meter)
@@ -88,7 +90,7 @@ class MetragenStatisticsImporter:
                 return
 
     async def _async_import_meter(self, meter: MetragenMeter) -> None:
-        """Append the months of one meter that are not stored yet."""
+        """Acrescenta os meses de um medidor que ainda não estão armazenados."""
         consumption_id = self._series_id(meter)
         cost_id = f"{consumption_id}_cost"
         last_consumption = await self._async_last_row(consumption_id)
@@ -156,7 +158,7 @@ class MetragenStatisticsImporter:
         self,
         meter: MetragenMeter,
     ) -> list[MetragenMeterReading]:
-        """Collect every month the portal has for the meter, oldest first."""
+        """Reúne todos os meses que o portal tem do medidor, em ordem cronológica."""
         readings_by_month: dict[_MonthKey, MetragenMeterReading] = {
             (reading.year, reading.month): reading for reading in meter.readings
         }
@@ -173,13 +175,13 @@ class MetragenStatisticsImporter:
         return [readings_by_month[month] for month in sorted(readings_by_month)]
 
     async def _async_readings_of(self, year: int) -> MetragenReadings:
-        """Fetch one year from the portal at most once per import run."""
+        """Busca um ano no portal no máximo uma vez por execução da importação."""
         if year not in self._readings_by_year:
             self._readings_by_year[year] = await self._client.async_get_readings(year)
         return self._readings_by_year[year]
 
     async def _async_last_row(self, statistic_id: str) -> _LastRow | None:
-        """Return the start and running sum of the newest stored row, if any."""
+        """Retorna o início e a soma acumulada da última linha armazenada, se houver."""
         rows = await get_instance(self._hass).async_add_executor_job(
             partial(
                 get_last_statistics,
@@ -196,11 +198,11 @@ class MetragenStatisticsImporter:
         return dt_util.utc_from_timestamp(last_row["start"]), last_row["sum"] or 0.0
 
     def _series_id(self, meter: MetragenMeter) -> str:
-        """Build the consumption statistic id of the meter, code first."""
+        """Monta o id da estatística de consumo do medidor, com o código primeiro."""
         return f"{DOMAIN}:{slugify(meter.code)}_{meter.kind}"
 
     def _device_name(self, meter: MetragenMeter) -> str:
-        """Name the series like the meter's device, in the configured language."""
+        """Nomeia a série como o dispositivo do medidor, no idioma configurado."""
         translations = async_get_cached_translations(
             self._hass, self._hass.config.language, "device", DOMAIN
         )
@@ -211,7 +213,7 @@ class MetragenStatisticsImporter:
         return template.format(code=meter.code)
 
     def _monthly_cost_name(self) -> str:
-        """Return the translated name of the monthly cost sensor."""
+        """Retorna o nome traduzido do sensor de valor mensal."""
         translations = async_get_cached_translations(
             self._hass, self._hass.config.language, "entity", DOMAIN
         )
@@ -227,7 +229,7 @@ class MetragenStatisticsImporter:
         unit_class: str | None,
         unit: str,
     ) -> StatisticMetaData:
-        """Describe one series to the recorder."""
+        """Descreve uma série para o recorder."""
         return StatisticMetaData(
             mean_type=StatisticMeanType.NONE,
             has_sum=True,

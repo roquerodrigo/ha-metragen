@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for metragen."""
+"""DataUpdateCoordinator do metragen."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ FAILURE_GRACE_PERIOD = timedelta(hours=24)
 
 
 class MetragenDataUpdateCoordinator(DataUpdateCoordinator["MetragenPayload"]):
-    """Coordinator for fetching the meters and readings from the portal."""
+    """Coordinator que busca os medidores e as leituras no portal."""
 
     config_entry: MetragenConfigEntry
 
@@ -37,7 +37,7 @@ class MetragenDataUpdateCoordinator(DataUpdateCoordinator["MetragenPayload"]):
         scan_interval: timedelta,
         config_entry: MetragenConfigEntry | None = None,
     ) -> None:
-        """Initialize."""
+        """Inicializa."""
         super().__init__(
             hass=hass,
             logger=LOGGER,
@@ -49,7 +49,7 @@ class MetragenDataUpdateCoordinator(DataUpdateCoordinator["MetragenPayload"]):
         self._first_failure_at: datetime | None = None
 
     async def _async_update_data(self) -> MetragenPayload:
-        """Fetch data from the API, tolerating outages shorter than the grace period."""
+        """Busca os dados da API, tolerando quedas mais curtas que a carência."""
         current_year = dt_util.now().year
         try:
             payload = await self._fetch_payload(current_year)
@@ -64,11 +64,12 @@ class MetragenDataUpdateCoordinator(DataUpdateCoordinator["MetragenPayload"]):
 
     async def _fetch_payload(self, current_year: int) -> MetragenPayload:
         """
-        Collect the meters of the current year, keyed by meter.
+        Reúne os medidores do ano corrente, indexados por medidor.
 
-        Readings are published monthly, so early in a year a kind may have no
-        rows yet; each kind without rows falls back to the previous year so the
-        latest reading keeps being reported across the turn of the year.
+        As leituras são publicadas mensalmente, então no começo do ano um tipo
+        pode ainda não ter linhas; cada tipo sem linhas recai no ano anterior,
+        para que a leitura mais recente continue sendo informada na virada do
+        ano.
         """
         client = self.config_entry.runtime_data.client
         readings = await client.async_get_readings(current_year)
@@ -84,7 +85,7 @@ class MetragenDataUpdateCoordinator(DataUpdateCoordinator["MetragenPayload"]):
         payload: MetragenPayload,
         current_year: int,
     ) -> None:
-        """Push the monthly history of every meter into long-term statistics."""
+        """Envia o histórico mensal de cada medidor às estatísticas de longo prazo."""
         importer = MetragenStatisticsImporter(
             hass=self.hass,
             client=self.config_entry.runtime_data.client,
@@ -94,13 +95,13 @@ class MetragenDataUpdateCoordinator(DataUpdateCoordinator["MetragenPayload"]):
 
     def _handle_failure(self, exception: MetragenApiClientError) -> MetragenPayload:
         """
-        Serve the last known data while the outage is shorter than the grace period.
+        Serve os últimos dados conhecidos enquanto a queda é menor que a carência.
 
-        Readings only change once a month, so holding the last known values
-        through a portal outage costs nothing in accuracy while keeping every
-        entity available for automations and history. A genuine outage still
-        surfaces once the window closes, and authentication errors never reach
-        here, so re-authentication is prompted at once.
+        As leituras só mudam uma vez por mês, então manter os últimos valores
+        conhecidos durante uma queda do portal não custa nada em precisão e
+        mantém todas as entidades disponíveis para automações e histórico. Uma
+        queda de verdade ainda aparece quando a janela se encerra, e erros de
+        autenticação nunca chegam aqui, então a reautenticação é pedida na hora.
         """
         now = dt_util.utcnow()
         if self._first_failure_at is None:

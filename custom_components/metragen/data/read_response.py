@@ -1,4 +1,4 @@
-"""Typed envelope of a Kendo grid read response from the Metragen portal."""
+"""Envelope tipado da resposta de leitura de um grid Kendo do portal Metragen."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class MetragenReadResponse(TypedDict):
-    """Envelope returned by the ``*_Read`` endpoints."""
+    """Envelope retornado pelos endpoints ``*_Read``."""
 
     Data: list[MetragenReadingRow] | None
     Total: int

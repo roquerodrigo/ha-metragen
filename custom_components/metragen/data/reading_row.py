@@ -1,4 +1,4 @@
-"""Typed shape of one row returned by the Metragen readings endpoints."""
+"""Formato tipado de uma linha retornada pelos endpoints de leituras do Metragen."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from typing import TypedDict
 
 class MetragenReadingRow(TypedDict):
     """
-    Row of a ``LeiturasMorador_Read`` or ``LeiturasMoradorGas_Read`` response.
+    Linha de uma resposta ``LeiturasMorador_Read`` ou ``LeiturasMoradorGas_Read``.
 
-    ``Anterior`` and ``Leitura`` carry the raw counter in liters as strings;
-    the ``*div`` fields are already scaled to cubic meters and BRL.
+    ``Anterior`` e ``Leitura`` trazem o contador bruto em litros como strings;
+    os campos ``*div`` já vêm convertidos para metros cúbicos e BRL.
     """
 
     Ano: int

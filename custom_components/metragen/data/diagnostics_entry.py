@@ -1,4 +1,4 @@
-"""Typed entry section of the diagnostics dump."""
+"""Seção tipada da entry no dump de diagnóstico."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class MetragenDiagnosticsEntry(TypedDict):
-    """Entry section of the diagnostics dump."""
+    """Seção da entry no dump de diagnóstico."""
 
     title: str
     version: int

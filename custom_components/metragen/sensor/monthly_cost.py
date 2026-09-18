@@ -1,4 +1,4 @@
-"""Sensor exposing the amount billed for the latest reading period."""
+"""Sensor que expõe o valor cobrado no período da leitura mais recente."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 
 class MetragenMonthlyCostSensor(MetragenEntity, SensorEntity):
-    """Amount charged for the meter in the latest month the portal has billed."""
+    """Valor cobrado pelo medidor no último mês que o portal cobrou."""
 
     _attr_translation_key = "monthly_cost"
     _attr_device_class = SensorDeviceClass.MONETARY
@@ -29,20 +29,20 @@ class MetragenMonthlyCostSensor(MetragenEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        """Return a unique id derived from the config entry and the meter."""
+        """Retorna um id único derivado da config entry e do medidor."""
         return (
             f"{self.coordinator.config_entry.entry_id}_{self._meter_key}_monthly_cost"
         )
 
     @property
     def native_value(self) -> float | None:
-        """Return the cost of the latest reading."""
+        """Retorna o valor da leitura mais recente."""
         latest = self.latest_reading
         return None if latest is None else latest.cost
 
     @property
     def last_reset(self) -> datetime | None:
-        """Anchor the total at the start of the month the reading covers."""
+        """Ancora o total no início do mês que a leitura cobre."""
         latest = self.latest_reading
         if latest is None:
             return None

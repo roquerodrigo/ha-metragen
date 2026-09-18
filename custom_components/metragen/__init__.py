@@ -1,4 +1,4 @@
-"""Metragen integration for Home Assistant."""
+"""Integração Metragen para o Home Assistant."""
 
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ async def async_setup_entry(
     hass: HomeAssistant,
     entry: MetragenConfigEntry,
 ) -> bool:
-    """Set up Metragen from a config entry."""
+    """Configura o Metragen a partir de uma config entry."""
     config = cast("MetragenConfigData", entry.data)
     scan_interval_seconds: int = int(
         entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_SECONDS),
@@ -37,9 +37,9 @@ async def async_setup_entry(
         scan_interval=timedelta(seconds=scan_interval_seconds),
         config_entry=entry,
     )
-    # The portal authenticates through session cookies, so the entry needs a
-    # session with a cookie jar of its own rather than the shared one; Home
-    # Assistant detaches it when the entry unloads.
+    # O portal autentica por cookies de sessão, então a entry precisa de uma
+    # sessão com cookie jar próprio em vez da compartilhada; o Home Assistant a
+    # desvincula quando a entry é descarregada.
     entry.runtime_data = MetragenData(
         client=MetragenApiClient(
             username=config["username"],
@@ -62,7 +62,7 @@ async def async_unload_entry(
     hass: HomeAssistant,
     entry: MetragenConfigEntry,
 ) -> bool:
-    """Handle removal of an entry."""
+    """Trata a remoção de uma entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
@@ -70,16 +70,16 @@ async def async_reload_entry(
     hass: HomeAssistant,
     entry: MetragenConfigEntry,
 ) -> None:
-    """Reload config entry."""
+    """Recarrega a config entry."""
     await hass.config_entries.async_reload(entry.entry_id)
 
 
 async def async_remove_config_entry_device(
-    hass: HomeAssistant,  # noqa: ARG001 -- part of the signature Home Assistant calls
+    hass: HomeAssistant,  # noqa: ARG001 -- parte da assinatura que o Home Assistant chama
     entry: MetragenConfigEntry,
     device_entry: DeviceEntry,
 ) -> bool:
-    """Allow deleting meters the portal no longer lists for this account."""
+    """Permite excluir medidores que o portal não lista mais para esta conta."""
     payload: MetragenPayload | None = entry.runtime_data.coordinator.data
     listed_identifiers = {
         (DOMAIN, f"{entry.entry_id}_{meter_key}") for meter_key in (payload or {})
