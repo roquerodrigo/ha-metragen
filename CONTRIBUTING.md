@@ -48,7 +48,7 @@ O projeto usa o [ruff](https://docs.astral.sh/ruff/) (configurado no `pyproject.
 
 ## Teste a sua modificação
 
-Este template é baseado no [metragen template](https://github.com/ludeeus/metragen).
+Este projeto é baseado no [ha-integration-blueprint](https://github.com/roquerodrigo/ha-integration-blueprint).
 
 Rode `scripts/setup` uma vez para criar o ambiente virtual gerenciado pelo `uv` e, depois, `scripts/develop` para iniciar uma instância independente do Home Assistant em modo debug, com a integração carregada e o arquivo [`configuration.yaml`](./config/configuration.yaml) incluído.
 
