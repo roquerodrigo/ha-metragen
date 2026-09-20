@@ -172,7 +172,7 @@ custom_components/metragen/
 Todos os workflows chamam os workflows reutilizáveis de [`roquerodrigo/workflows`](https://github.com/roquerodrigo/workflows):
 
 - **`ci.yml`** — ruff (check + format) + mypy, pytest com o gate de cobertura e validação `hassfest` (o validador do HACS fica desligado enquanto o repositório for privado); push/PR para a `main`
-- **`release.yml`** — release-please, condicionado a um CI verde na `main`
+- **`release.yml`** — release-please, condicionado a um CI verde na `main`; quando uma release é criada, anexa a ela o `metragen.zip` que o HACS baixa (`zip_release` em `hacs.json`)
 - **`auto-assign.yml`** — atribui novas issues/PRs ao code owner
 
 ## Licença
