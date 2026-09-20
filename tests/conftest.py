@@ -43,26 +43,26 @@ def make_reading(
 
 COLD_WATER_METER = MetragenMeter(
     kind=MetragenMeterKind.WATER,
-    code="AF2616",
+    code="AF1234",
     readings=(
-        make_reading(2026, 6, 81.25, 8.2, 132.296),
-        make_reading(2026, 7, 86.72, 5.47, 101.576),
+        make_reading(2026, 6, 80.25, 7.5, 120.456),
+        make_reading(2026, 7, 86.35, 6.1, 96.432),
     ),
 )
 HOT_WATER_METER = MetragenMeter(
     kind=MetragenMeterKind.WATER,
-    code="AQ2616",
+    code="AQ1234",
     readings=(
-        make_reading(2026, 6, 35.58, 5.82),
-        make_reading(2026, 7, 41.73, 6.15),
+        make_reading(2026, 6, 33.65, 5.2),
+        make_reading(2026, 7, 39.15, 5.5),
     ),
 )
 GAS_METER = MetragenMeter(
     kind=MetragenMeterKind.GAS,
-    code="AQ2616",
+    code="AQ1234",
     readings=(
-        make_reading(2026, 4, 25.87, 3.21, 26.71169),
-        make_reading(2026, 5, 29.76, 3.89, 143.12464),
+        make_reading(2026, 4, 24.15, 3.05, 25.41237),
+        make_reading(2026, 5, 28.45, 4.3, 140.98765),
     ),
 )
 

@@ -111,7 +111,7 @@ async def test_scan_interval_picks_up_options(
 
 async def test_remove_device_refuses_a_meter_the_portal_lists(hass, setup_integration):
     device = dr.async_get(hass).async_get_device(
-        identifiers={(DOMAIN, f"{setup_integration.entry_id}_water_af2616")}
+        identifiers={(DOMAIN, f"{setup_integration.entry_id}_water_af1234")}
     )
     assert device is not None
     assert not await async_remove_config_entry_device(hass, setup_integration, device)
@@ -132,7 +132,7 @@ async def test_remove_device_allows_anything_before_the_first_refresh(
 ):
     setup_integration.runtime_data.coordinator.data = None
     device = dr.async_get(hass).async_get_device(
-        identifiers={(DOMAIN, f"{setup_integration.entry_id}_water_af2616")}
+        identifiers={(DOMAIN, f"{setup_integration.entry_id}_water_af1234")}
     )
     assert device is not None
     assert await async_remove_config_entry_device(hass, setup_integration, device)

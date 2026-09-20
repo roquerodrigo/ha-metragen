@@ -34,8 +34,8 @@ from .conftest import COLD_WATER_METER, GAS_METER, make_reading
 
 EMPTY = MetragenReadings(water=(), gas=())
 CURRENT_YEAR = 2026
-CONSUMPTION_ID = "metragen:af2616_water"
-COST_ID = "metragen:af2616_water_cost"
+CONSUMPTION_ID = "metragen:af1234_water"
+COST_ID = "metragen:af1234_water_cost"
 TRANSLATIONS = {
     "component.metragen.device.cold_water_meter.name": "{code} Cold Water",
     "component.metragen.device.hot_water_meter.name": "{code} Hot Water",
@@ -110,7 +110,7 @@ def _metadata(recorder, statistic_id: str) -> dict:
 async def test_first_import_walks_back_until_an_empty_year(recorder):
     older = MetragenMeter(
         kind=MetragenMeterKind.WATER,
-        code="AF2616",
+        code="AF1234",
         readings=(
             make_reading(2025, 11, 60.0, 4.0, 40.0),
             make_reading(2025, 12, 65.0, 5.0, 50.0),
@@ -129,15 +129,15 @@ async def test_first_import_walks_back_until_an_empty_year(recorder):
         _month_start(2026, 6),
         _month_start(2026, 7),
     ]
-    assert [row["sum"] for row in rows] == [4.0, 9.0, 17.2, 22.67]
-    assert [row["state"] for row in rows] == [60.0, 65.0, 81.25, 86.72]
+    assert [row["sum"] for row in rows] == [4.0, 9.0, 16.5, 22.6]
+    assert [row["state"] for row in rows] == [60.0, 65.0, 80.25, 86.35]
 
 
 async def test_first_import_writes_the_cost_series(recorder):
     await _importer(_client({})).async_import([COLD_WATER_METER])
     rows = _rows(recorder, COST_ID)
-    assert [row["state"] for row in rows] == [132.296, 101.576]
-    assert [row["sum"] for row in rows] == [132.3, 233.87]
+    assert [row["state"] for row in rows] == [120.456, 96.432]
+    assert [row["sum"] for row in rows] == [120.46, 216.89]
 
 
 async def test_metadata_describes_volume_and_currency(recorder):
@@ -147,18 +147,18 @@ async def test_metadata_describes_volume_and_currency(recorder):
     assert consumption["has_sum"] is True
     assert consumption["unit_of_measurement"] == "m³"
     assert consumption["unit_class"] == "volume"
-    assert consumption["name"] == "AF2616 Cold Water"
+    assert consumption["name"] == "AF1234 Cold Water"
     cost = _metadata(recorder, COST_ID)
-    assert cost["name"] == "AF2616 Cold Water Monthly Cost"
+    assert cost["name"] == "AF1234 Cold Water Monthly Cost"
     assert cost["unit_of_measurement"] == "BRL"
     assert cost["unit_class"] is None
 
 
 async def test_gas_meter_uses_its_own_statistic_ids(recorder):
     await _importer(_client({})).async_import([GAS_METER])
-    assert _rows(recorder, "metragen:aq2616_gas")
-    assert _rows(recorder, "metragen:aq2616_gas_cost")
-    assert _metadata(recorder, "metragen:aq2616_gas")["name"] == "AQ2616 Gas"
+    assert _rows(recorder, "metragen:aq1234_gas")
+    assert _rows(recorder, "metragen:aq1234_gas_cost")
+    assert _metadata(recorder, "metragen:aq1234_gas")["name"] == "AQ1234 Gas"
 
 
 async def test_first_import_stops_after_the_history_cap(recorder):
@@ -174,7 +174,7 @@ async def test_first_import_stops_after_the_history_cap(recorder):
 async def test_first_import_merges_months_fetched_twice(recorder):
     fallback_meter = MetragenMeter(
         kind=MetragenMeterKind.WATER,
-        code="AF2616",
+        code="AF1234",
         readings=(make_reading(2025, 12, 65.0, 5.0),),
     )
     client = _client({2025: MetragenReadings(water=(fallback_meter,), gas=())})
@@ -193,27 +193,27 @@ async def test_later_imports_append_only_newer_months(recorder):
     client.async_get_readings.assert_not_awaited()
     consumption = _rows(recorder, CONSUMPTION_ID)
     assert [row["start"] for row in consumption] == [_month_start(2026, 7)]
-    assert consumption[0]["sum"] == 105.47
+    assert consumption[0]["sum"] == 106.1
     cost = _rows(recorder, COST_ID)
-    assert cost[0]["sum"] == 1001.58
+    assert cost[0]["sum"] == 996.43
 
 
 async def test_only_metadata_is_sent_when_no_month_is_newer(recorder):
     recorder.last.side_effect = lambda _hass, _n, statistic_id, *_, **__: _last_row(
-        statistic_id, 2026, 7, 13.67
+        statistic_id, 2026, 7, 13.6
     )
     await _importer(_client({})).async_import([COLD_WATER_METER])
     assert _rows(recorder, CONSUMPTION_ID) == []
     assert _rows(recorder, COST_ID) == []
-    assert _metadata(recorder, CONSUMPTION_ID)["name"] == "AF2616 Cold Water"
+    assert _metadata(recorder, CONSUMPTION_ID)["name"] == "AF1234 Cold Water"
 
 
 async def test_missing_cost_row_restarts_the_cost_sum(recorder):
     recorder.last.side_effect = lambda _hass, _n, statistic_id, *_, **__: (
-        _last_row(statistic_id, 2026, 6, 8.2) if statistic_id == CONSUMPTION_ID else {}
+        _last_row(statistic_id, 2026, 6, 7.5) if statistic_id == CONSUMPTION_ID else {}
     )
     await _importer(_client({})).async_import([COLD_WATER_METER])
-    assert _rows(recorder, COST_ID)[0]["sum"] == 101.58
+    assert _rows(recorder, COST_ID)[0]["sum"] == 96.43
 
 
 async def test_portal_error_postpones_the_import(recorder, caplog):
@@ -229,7 +229,7 @@ async def test_portal_error_postpones_the_import(recorder, caplog):
 
 async def test_history_lands_in_long_term_statistics(hass, setup_integration):
     await async_wait_recording_done(hass)
-    statistic_id = "metragen:af2616_water"
+    statistic_id = "metragen:af1234_water"
     stats = await get_instance(hass).async_add_executor_job(
         statistics_during_period,
         hass,
@@ -241,9 +241,9 @@ async def test_history_lands_in_long_term_statistics(hass, setup_integration):
         {"sum", "state"},
     )
     rows = stats[statistic_id]
-    assert [round(row["sum"], 3) for row in rows] == [8.2, 13.67]
-    assert [row["state"] for row in rows] == [81.25, 86.72]
+    assert [round(row["sum"], 3) for row in rows] == [7.5, 13.6]
+    assert [row["state"] for row in rows] == [80.25, 86.35]
     metadata = await get_instance(hass).async_add_executor_job(
         partial(get_metadata, hass, statistic_ids={statistic_id})
     )
-    assert metadata[statistic_id][1]["name"] == "AF2616 Cold Water"
+    assert metadata[statistic_id][1]["name"] == "AF1234 Cold Water"

@@ -64,8 +64,8 @@ def test_init_sets_update_interval(hass):
 async def test_update_data_keys_meters_by_their_key(hass, sample_readings):
     coord, _ = _make_coordinator(hass, readings=sample_readings)
     result = await coord._async_update_data()
-    assert set(result) == {"water_af2616", "water_aq2616", "gas_aq2616"}
-    assert result["water_af2616"] is COLD_WATER_METER
+    assert set(result) == {"water_af1234", "water_aq1234", "gas_aq1234"}
+    assert result["water_af1234"] is COLD_WATER_METER
 
 
 async def test_update_data_queries_the_current_year(hass, sample_readings):
@@ -81,7 +81,7 @@ async def test_update_data_falls_back_to_last_year_for_kinds_without_rows(hass):
         MetragenReadings(water=(HOT_WATER_METER,), gas=(GAS_METER,)),
     ]
     result = await coord._async_update_data()
-    assert set(result) == {"water_af2616", "gas_aq2616"}
+    assert set(result) == {"water_af1234", "gas_aq1234"}
     current_year = dt_util.now().year
     assert [call.args[0] for call in client.async_get_readings.await_args_list] == [
         current_year,

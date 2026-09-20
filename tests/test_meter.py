@@ -9,13 +9,13 @@ from custom_components.metragen.data import MetragenMeter, MetragenMeterKind
 from .conftest import COLD_WATER_METER, GAS_METER, HOT_WATER_METER, make_reading
 
 
-def _meter(kind=MetragenMeterKind.WATER, code="AF2616", readings=()):
+def _meter(kind=MetragenMeterKind.WATER, code="AF1234", readings=()):
     return MetragenMeter(kind=kind, code=code, readings=tuple(readings))
 
 
 def test_key_combines_kind_and_slugified_code():
-    assert COLD_WATER_METER.key == "water_af2616"
-    assert GAS_METER.key == "gas_aq2616"
+    assert COLD_WATER_METER.key == "water_af1234"
+    assert GAS_METER.key == "gas_aq1234"
 
 
 def test_latest_is_the_last_reading():

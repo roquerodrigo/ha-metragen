@@ -47,25 +47,25 @@ async def test_every_meter_gets_its_sensors(hass, setup_integration, sample_payl
 
 
 async def test_reading_state_and_attributes(hass, setup_integration):
-    state = _state_by_unique_id(hass, setup_integration, "water_af2616_reading")
-    assert state.state == "86.72"
+    state = _state_by_unique_id(hass, setup_integration, "water_af1234_reading")
+    assert state.state == "86.35"
     assert state.attributes["unit_of_measurement"] == "m³"
     assert state.attributes["device_class"] == "water"
     assert state.attributes["state_class"] == "total_increasing"
-    assert state.attributes["meter_code"] == "AF2616"
+    assert state.attributes["meter_code"] == "AF1234"
     assert state.attributes["year"] == 2026
     assert state.attributes["month"] == 7
 
 
 async def test_gas_reading_uses_the_gas_device_class(hass, setup_integration):
-    state = _state_by_unique_id(hass, setup_integration, "gas_aq2616_reading")
-    assert state.state == "29.76"
+    state = _state_by_unique_id(hass, setup_integration, "gas_aq1234_reading")
+    assert state.state == "28.45"
     assert state.attributes["device_class"] == "gas"
 
 
 async def test_monthly_cost_state(hass, setup_integration):
-    state = _state_by_unique_id(hass, setup_integration, "water_af2616_monthly_cost")
-    assert state.state == "101.576"
+    state = _state_by_unique_id(hass, setup_integration, "water_af1234_monthly_cost")
+    assert state.state == "96.432"
     assert state.attributes["unit_of_measurement"] == "BRL"
     assert state.attributes["device_class"] == "monetary"
     assert state.attributes["state_class"] == "total"
@@ -80,11 +80,11 @@ async def test_devices_are_named_after_what_they_measure(hass, setup_integration
     entry_id = setup_integration.entry_id
     names = {
         key: registry.async_get_device(identifiers={(DOMAIN, f"{entry_id}_{key}")})
-        for key in ("water_af2616", "water_aq2616", "gas_aq2616")
+        for key in ("water_af1234", "water_aq1234", "gas_aq1234")
     }
-    assert names["water_af2616"].name == "AF2616 Cold Water"
-    assert names["water_aq2616"].name == "AQ2616 Hot Water"
-    assert names["gas_aq2616"].name == "AQ2616 Gas"
+    assert names["water_af1234"].name == "AF1234 Cold Water"
+    assert names["water_aq1234"].name == "AQ1234 Hot Water"
+    assert names["gas_aq1234"].name == "AQ1234 Gas"
 
 
 async def test_meters_listed_later_are_added(hass, setup_integration, sample_payload):
@@ -106,21 +106,21 @@ async def test_meters_dropped_by_the_portal_become_unavailable(
     hass, setup_integration, sample_payload
 ):
     coordinator = setup_integration.runtime_data.coordinator
-    remaining = {k: v for k, v in sample_payload.items() if k != "water_af2616"}
+    remaining = {k: v for k, v in sample_payload.items() if k != "water_af1234"}
     coordinator.async_set_updated_data(remaining)
     await hass.async_block_till_done()
-    state = _state_by_unique_id(hass, setup_integration, "water_af2616_reading")
+    state = _state_by_unique_id(hass, setup_integration, "water_af1234_reading")
     assert state.state == "unavailable"
 
 
 def test_reading_sensor_unique_id(sample_payload):
     sensor = MetragenReadingSensor(_coordinator(sample_payload), COLD_WATER_METER)
-    assert sensor.unique_id == "eid_water_af2616_reading"
+    assert sensor.unique_id == "eid_water_af1234_reading"
 
 
 def test_reading_sensor_value_and_classes(sample_payload):
     sensor = MetragenReadingSensor(_coordinator(sample_payload), COLD_WATER_METER)
-    assert sensor.native_value == 86.72
+    assert sensor.native_value == 86.35
     assert sensor.device_class is SensorDeviceClass.WATER
     assert sensor.state_class is SensorStateClass.TOTAL_INCREASING
 
@@ -132,8 +132,8 @@ def test_reading_sensor_value_none_without_meter():
 
 def test_monthly_consumption_sensor(sample_payload):
     sensor = MetragenMonthlyConsumptionSensor(_coordinator(sample_payload), GAS_METER)
-    assert sensor.unique_id == "eid_gas_aq2616_monthly_consumption"
-    assert sensor.native_value == 3.89
+    assert sensor.unique_id == "eid_gas_aq1234_monthly_consumption"
+    assert sensor.native_value == 4.3
     assert sensor.device_class is SensorDeviceClass.GAS
     assert sensor.state_class is SensorStateClass.TOTAL
     assert sensor.last_reset == dt_util.start_of_local_day(date(2026, 5, 1))
@@ -147,8 +147,8 @@ def test_monthly_consumption_sensor_without_meter():
 
 def test_monthly_cost_sensor(sample_payload):
     sensor = MetragenMonthlyCostSensor(_coordinator(sample_payload), COLD_WATER_METER)
-    assert sensor.unique_id == "eid_water_af2616_monthly_cost"
-    assert sensor.native_value == 101.576
+    assert sensor.unique_id == "eid_water_af1234_monthly_cost"
+    assert sensor.native_value == 96.432
     assert sensor.device_class is SensorDeviceClass.MONETARY
     assert sensor.last_reset == dt_util.start_of_local_day(date(2026, 7, 1))
 
@@ -163,8 +163,8 @@ def test_yearly_consumption_sensor(sample_payload):
     sensor = MetragenYearlyConsumptionSensor(
         _coordinator(sample_payload), COLD_WATER_METER
     )
-    assert sensor.unique_id == "eid_water_af2616_yearly_consumption"
-    assert sensor.native_value == 13.67
+    assert sensor.unique_id == "eid_water_af1234_yearly_consumption"
+    assert sensor.native_value == 13.6
     assert sensor.device_class is SensorDeviceClass.WATER
     assert sensor.last_reset == dt_util.start_of_local_day(date(2026, 1, 1))
 

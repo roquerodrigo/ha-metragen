@@ -30,7 +30,7 @@ def test_has_entity_name():
 
 def test_device_info_identifiers_combine_entry_id_and_meter_key():
     identifiers = _make_entity(entry_id="my_id").device_info["identifiers"]
-    assert identifiers == {(DOMAIN, "my_id_water_af2616")}
+    assert identifiers == {(DOMAIN, "my_id_water_af1234")}
 
 
 def test_device_info_manufacturer():
@@ -40,7 +40,7 @@ def test_device_info_manufacturer():
 def test_device_info_translates_the_meter_kind_with_its_code():
     info = _make_entity().device_info
     assert info["translation_key"] == "cold_water_meter"
-    assert info["translation_placeholders"] == {"code": "AF2616"}
+    assert info["translation_placeholders"] == {"code": "AF1234"}
 
 
 def test_meter_is_none_before_first_refresh():
@@ -87,7 +87,7 @@ def test_unavailable_when_last_update_failed(sample_payload):
 
 def test_extra_state_attributes_describe_the_billing_month(sample_payload):
     assert _make_entity(payload=sample_payload).extra_state_attributes == {
-        "meter_code": "AF2616",
+        "meter_code": "AF1234",
         "year": 2026,
         "month": 7,
     }
