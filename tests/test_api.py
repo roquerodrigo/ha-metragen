@@ -26,7 +26,7 @@ LOGIN_PAGE = (
     '<input id="Senhaportal" name="Senhaportal" type="password" />'
     "</form>"
 )
-LANDING_PAGE = "<legend>Morador: Someone - Apartamento: 2616 - Bloco: 0</legend>"
+LANDING_PAGE = "<legend>Morador: Someone - Apartamento: 1234 - Bloco: 0</legend>"
 
 
 def _row(
@@ -54,10 +54,10 @@ def _row(
 WATER_GRID = json.dumps(
     {
         "Data": [
-            _row("AQ2616", 7, ("35580", "41730"), 6.15, 0.0),
-            _row("AF2616", 7, ("81250", "86720"), 5.47, 101.576),
-            _row("AQ2616", 6, ("29760", "35580"), 5.82, 0.0),
-            _row("AF2616", 6, ("73050", "81250"), 8.2, 132.296),
+            _row("AQ1234", 7, ("33650", "39150"), 5.5, 0.0),
+            _row("AF1234", 7, ("80250", "86350"), 6.1, 96.432),
+            _row("AQ1234", 6, ("28450", "33650"), 5.2, 0.0),
+            _row("AF1234", 6, ("72750", "80250"), 7.5, 120.456),
         ],
         "Total": 4,
         "AggregateResults": None,
@@ -66,7 +66,7 @@ WATER_GRID = json.dumps(
 )
 GAS_GRID = json.dumps(
     {
-        "Data": [_row("AQ2616", 5, ("25870", "29760"), 3.89, 143.12464)],
+        "Data": [_row("AQ1234", 5, ("24150", "28450"), 4.3, 140.98765)],
         "Total": 1,
         "AggregateResults": None,
         "Errors": None,
@@ -157,8 +157,8 @@ async def test_login_rejected_raises_auth_error():
 
 async def test_get_readings_groups_rows_by_meter_in_chronological_order():
     readings = await _client(FakePortal(logged_in=True)).async_get_readings(2026)
-    assert [meter.code for meter in readings.water] == ["AF2616", "AQ2616"]
-    assert [meter.code for meter in readings.gas] == ["AQ2616"]
+    assert [meter.code for meter in readings.water] == ["AF1234", "AQ1234"]
+    assert [meter.code for meter in readings.gas] == ["AQ1234"]
     cold_water = readings.water[0]
     assert cold_water.kind is MetragenMeterKind.WATER
     assert [reading.month for reading in cold_water.readings] == [6, 7]
@@ -169,10 +169,10 @@ async def test_get_readings_converts_counters_from_liters_to_cubic_meters():
     readings = await _client(FakePortal(logged_in=True)).async_get_readings(2026)
     latest = readings.water[0].latest
     assert latest is not None
-    assert latest.previous_reading == 81.25
-    assert latest.current_reading == 86.72
-    assert latest.consumption == 5.47
-    assert latest.cost == 101.576
+    assert latest.previous_reading == 80.25
+    assert latest.current_reading == 86.35
+    assert latest.consumption == 6.1
+    assert latest.cost == 96.432
 
 
 async def test_get_readings_selects_the_requested_year():
@@ -241,7 +241,7 @@ async def test_get_readings_rejects_a_non_object_response():
 
 
 async def test_get_readings_defaults_missing_values_to_zero():
-    grid = json.dumps({"Data": [_row("AF2616", 3, (None, None), None, None)]})
+    grid = json.dumps({"Data": [_row("AF1234", 3, (None, None), None, None)]})
     portal = FakePortal(logged_in=True, water=grid)
     readings = await _client(portal).async_get_readings(2026)
     latest = readings.water[0].latest

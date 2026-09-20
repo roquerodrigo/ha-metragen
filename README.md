@@ -17,8 +17,8 @@ respectivas leituras.
 ## Entidades
 
 É criado um dispositivo por medidor que o portal lista, nomeado pelo código do
-medidor e pelo que ele mede — "AF2616 Água Fria", "AQ2616 Água Quente",
-"AQ2616 Gás" —, cada um com quatro sensores:
+medidor e pelo que ele mede — "AF1234 Água Fria", "AQ1234 Água Quente",
+"AQ1234 Gás" —, cada um com quatro sensores:
 
 | Sensor | Unidade | Classe | O que informa |
 |---|---|---|---|
@@ -44,8 +44,8 @@ do Home Assistant. Cada medidor recebe duas estatísticas externas:
 | `metragen:<code>_<kind>_cost` | BRL | Valor cobrado em cada mês |
 
 `<code>` é o código do medidor exibido no portal e `<kind>` é `water` ou `gas`,
-por exemplo `metragen:af2616_water` ou `metragen:aq2616_gas`. As séries têm o
-mesmo nome dos dispositivos dos medidores ("AF2616 Água Fria", "AQ2616 Gás"),
+por exemplo `metragen:af1234_water` ou `metragen:aq1234_gas`. As séries têm o
+mesmo nome dos dispositivos dos medidores ("AF1234 Água Fria", "AQ1234 Gás"),
 então o seletor do painel de energia lê igual à lista de dispositivos. O valor
 de cada mês cai no primeiro dia daquele mês.
 

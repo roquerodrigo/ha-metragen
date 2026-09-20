@@ -24,10 +24,10 @@ async def test_diagnostics_includes_entry_metadata(hass, setup_integration):
 
 async def test_diagnostics_serializes_the_meters(hass, setup_integration):
     diag = await async_get_config_entry_diagnostics(hass, setup_integration)
-    cold_water = diag["coordinator_data"]["water_af2616"]
-    assert cold_water["code"] == "AF2616"
+    cold_water = diag["coordinator_data"]["water_af1234"]
+    assert cold_water["code"] == "AF1234"
     assert cold_water["kind"] == "water"
-    assert cold_water["readings"][-1]["current_reading"] == 86.72
+    assert cold_water["readings"][-1]["current_reading"] == 86.35
 
 
 async def test_diagnostics_coordinator_data_none_before_first_refresh(
