@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.3](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.2...v0.1.3) (2026-09-30)
+
+
+### Dependências de desenvolvimento
+
+* **deps-dev:** bump ruff in the python-deps group ([7d17f8c](https://github.com/roquerodrigo/ha-metragen/commit/7d17f8c6fd7c10a5b99975e1f09a879c931c4695))
+
+
+### Sistema de build
+
+* **release:** atualiza o uv.lock pelo release-please ([c35d19e](https://github.com/roquerodrigo/ha-metragen/commit/c35d19efe5595d333647af6d09e7252bf1ff0696))
+
+
+### Integração contínua
+
+* adiciona a análise do CodeQL ([8bb5762](https://github.com/roquerodrigo/ha-metragen/commit/8bb5762c584d07cf6f67ad0d83937cd47295f610))
+
 ## [0.1.2](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.1...v0.1.2) (2026-09-20)
 
 
