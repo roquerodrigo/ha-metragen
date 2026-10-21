@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.2...v0.1.3) (2026-10-21)
+
+
+### Tarefas diversas
+
+* **release:** mantém no changelog apenas as mudanças visíveis ao usuário ([2c22a0a](https://github.com/roquerodrigo/ha-metragen/commit/2c22a0a4b1fbc672f60487db8592d036147578a2))
+
 ## [0.1.2](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.1...v0.1.2) (2026-09-20)
 
 
