@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.3](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.2...v0.1.3) (2026-10-31)
+
+Apenas manutenção interna, sem mudanças para quem usa o projeto.
+
 ## [0.1.2](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.1...v0.1.2) (2026-09-20)
 
 
