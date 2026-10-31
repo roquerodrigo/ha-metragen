@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import timedelta
+
+from homeassistant.config_entries import ConfigEntryState
 from homeassistant.const import CONF_SCAN_INTERVAL
 from homeassistant.data_entry_flow import FlowResultType
 
@@ -26,6 +29,10 @@ async def test_options_flow_persists_scan_interval(hass, setup_integration):
     )
     assert result["type"] == FlowResultType.CREATE_ENTRY
     assert setup_integration.options[CONF_SCAN_INTERVAL] == 600
+    await hass.async_block_till_done()
+    assert setup_integration.state is ConfigEntryState.LOADED
+    coordinator = setup_integration.runtime_data.coordinator
+    assert coordinator.update_interval == timedelta(seconds=600)
 
 
 async def test_options_flow_uses_existing_value_as_default(hass, setup_integration):
