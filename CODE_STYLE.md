@@ -268,9 +268,10 @@ restrição deliberada — o `config_flow.py` traz o exemplo canônico.
 
 ## Requisitos de publicação no HACS
 
-O [HACS](https://www.hacs.xyz/docs/publish/integration/) valida o formato do
-repositório a cada push via `hacs/action@main` (e o próprio HA roda o
-`hassfest`). Os dois gates precisam ficar verdes:
+O [Home Assistant Autopilot](https://github.com/marketplace/actions/home-assistant-autopilot) valida o
+formato do repositório a cada push: o `hassfest`, as checagens de catálogo do
+[Home Assistant Marketplace](https://contributors.home-assistant.io/marketplace/), o `hacs.json` e
+as versões que ele declara. Todas as checagens precisam ficar verdes:
 
 - **Uma integração por repositório**, localizada em
   `custom_components/<domain>/`.
@@ -335,8 +336,8 @@ documento.**
 
 **Repositório privado não leva link do HACS.** O `my.home-assistant.io` resolve
 o destino pela API pública do GitHub, então em um repositório privado o botão
-cai em algo que o HACS não consegue instalar. É o mesmo motivo pelo qual esses
-repositórios chamam o workflow de validação com `hacs: false`. Publique o
+cai em algo que o HACS não consegue instalar. É o mesmo motivo pelo qual
+as checagens de catálogo pulam esses repositórios. Publique o
 título, os badges e o separador, e adicione o link quando — e somente quando —
 o repositório se tornar público.
 
