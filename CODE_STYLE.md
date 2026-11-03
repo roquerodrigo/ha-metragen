@@ -15,9 +15,8 @@ o português do Brasil é o idioma do repositório.
 - **Toda prosa lida por gente fica em pt-BR**: `README.md`, `CONTRIBUTING.md`,
   este guia, o `CLAUDE.md` e os demais `.md`; docstrings e comentários; o
   assunto e o corpo dos commits; títulos e descrições de PR; notas de release e
-  `CHANGELOG.md`, inclusive os títulos de seção (`changelog-sections` no
-  `release-please-config.json`); issues, comentários e reviews; os templates de
-  issue e de PR em `.github/`; a descrição do repositório no GitHub e a
+  `CHANGELOG.md`, inclusive os títulos de seção; issues, comentários e reviews;
+  os templates de issue e de PR em `.github/`; a descrição do repositório no GitHub e a
   `description` do `pyproject.toml`.
 - **O código continua em inglês**: nomes de arquivo, de classe, de função e de
   variável, nomes de branch, chaves de dicionário, strings identificadoras e
@@ -300,7 +299,8 @@ repositório a cada push via `hacs/action@main` (e o próprio HA roda o
 - Um `README.md` na raiz do repositório é obrigatório; o HACS o exibe como a
   descrição da integração. O cabeçalho dele segue o layout abaixo.
 
-O release-please marca as releases a cada merge na `main`; o HACS exibe aos
+O [release-autopilot](https://github.com/roquerodrigo/release-autopilot) marca
+as releases a cada merge do pull request de release na `main`; o HACS exibe aos
 usuários as cinco releases mais recentes do GitHub, então mantenha o changelog
 fácil de buscar.
 
@@ -370,7 +370,8 @@ comandos diretos equivalentes) logo em seguida.
 ## Conventional commits
 
 Todos os commits seguem o [Conventional Commits](https://www.conventionalcommits.org/),
-que o `release-please` interpreta para subir a versão e gerar o `CHANGELOG.md`:
+que o `release-autopilot` interpreta para subir a versão e escrever as notas da
+release e o `CHANGELOG.md`:
 
 | Tipo | Significado | Bump |
 |---|---|---|
