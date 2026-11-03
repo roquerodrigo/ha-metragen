@@ -30,10 +30,14 @@ updates:
           - "*"
         exclude-patterns:
           - "homeassistant"
+          - "pytest-homeassistant-custom-component"
     ignore:
-      # O Dependabot não deve atualizar o Home Assistant — esse pin acompanha
-      # a chave ``homeassistant`` do hacs.json (definida à mão).
+      # O Home Assistant e o harness de teste sobem juntos, à mão: o pin
+      # acompanha a chave ``homeassistant`` do hacs.json, e cada versão do
+      # pytest-homeassistant-custom-component fixa um Home Assistant exato,
+      # junto com pytest, pytest-asyncio e pytest-cov.
       - dependency-name: "homeassistant"
+      - dependency-name: "pytest-homeassistant-custom-component"
     commit-message:
       prefix: "deps"
       prefix-development: "deps-dev"
