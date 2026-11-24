@@ -21,7 +21,8 @@ if TYPE_CHECKING:
         MetragenPayload,
     )
 
-TO_REDACT: frozenset[str] = frozenset({CONF_PASSWORD, CONF_USERNAME})
+# O título da entrada é o login, e o código do medidor identifica a unidade.
+TO_REDACT: frozenset[str] = frozenset({CONF_PASSWORD, CONF_USERNAME, "title", "code"})
 
 
 async def async_get_config_entry_diagnostics(
@@ -29,26 +30,29 @@ async def async_get_config_entry_diagnostics(
     entry: MetragenConfigEntry,
 ) -> MetragenDiagnosticsPayload:
     """Retorna o diagnóstico de uma config entry."""
-    redacted_data = cast(
-        "Mapping[str, str]",
-        async_redact_data(dict(entry.data), set(TO_REDACT)),
+    diag_entry = cast(
+        "MetragenDiagnosticsEntry",
+        async_redact_data(
+            {
+                "title": entry.title,
+                "version": entry.version,
+                "domain": entry.domain,
+                "data": dict(entry.data),
+                "options": dict(entry.options),
+            },
+            set(TO_REDACT),
+        ),
     )
-    redacted_options = cast(
-        "Mapping[str, str | int]",
-        async_redact_data(dict(entry.options), set(TO_REDACT)),
-    )
-    diag_entry: MetragenDiagnosticsEntry = {
-        "title": entry.title,
-        "version": entry.version,
-        "domain": entry.domain,
-        "data": redacted_data,
-        "options": redacted_options,
-    }
     payload: MetragenPayload | None = entry.runtime_data.coordinator.data
     coordinator_data: Mapping[str, JsonObject] | None = (
         None
         if payload is None
-        else {key: cast("JsonObject", asdict(meter)) for key, meter in payload.items()}
+        else {
+            f"meter_{index}": cast(
+                "JsonObject", async_redact_data(asdict(meter), set(TO_REDACT))
+            )
+            for index, meter in enumerate(payload.values(), start=1)
+        }
     )
     return {
         "entry": diag_entry,
