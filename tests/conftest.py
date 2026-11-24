@@ -107,6 +107,7 @@ async def setup_integration(
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={"username": "user", "password": "pass"},
+        title="user",
         unique_id="user",
     )
     entry.add_to_hass(hass)
