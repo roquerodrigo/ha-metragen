@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.3...v0.1.4) (2026-11-24)
+
+### Correções
+
+- O diagnóstico deixa de expor o login da conta e o código dos medidores; os medidores passam a ser identificados pela posição. ([#32](https://github.com/roquerodrigo/ha-metragen/pull/32))
+- A validação de credenciais no fluxo de configuração passa a fechar a sessão HTTP que abre, em vez de deixá-la aberta até o Home Assistant parar. ([#32](https://github.com/roquerodrigo/ha-metragen/pull/32))
+
 ## [0.1.3](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.2...v0.1.3) (2026-10-31)
 
 Apenas manutenção interna, sem mudanças para quem usa o projeto.
