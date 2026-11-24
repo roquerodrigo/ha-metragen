@@ -1,180 +1,220 @@
-# Metragen para Home Assistant
+# Metragen
 
+<!-- ha-marketplace:exclude-start -->
 [![CI](https://github.com/roquerodrigo/ha-metragen/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/ha-metragen/actions/workflows/ci.yml)
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+[![GitHub release](https://img.shields.io/github/v/release/roquerodrigo/ha-metragen)](https://github.com/roquerodrigo/ha-metragen/releases/latest)
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-db61a2?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/roquerodrigo)
 
-[![Abra a sua instância do Home Assistant e o repositório dentro do HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-metragen&category=integration)
+[![Abra a sua instância do Home Assistant e o repositório no Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=roquerodrigo&repository=ha-metragen&category=integration)
+<!-- ha-marketplace:exclude-end -->
 
----
+Acompanhe no Home Assistant o consumo de água e gás do seu apartamento, em
+condomínios com medição individualizada da
+[Metragen](https://www.sistemametragen.com.br/metragen). Você entra com o
+mesmo login do Portal do Morador e vê a leitura, o consumo e o valor cobrado
+de cada medidor. O histórico mês a mês que o portal guarda vai para o painel
+de Energia.
 
-Integração custom do [Home Assistant](https://www.home-assistant.io/) para o
-portal do morador do [Sistema Metragen](https://www.sistemametragen.com.br/metragen),
-o serviço de medição individualizada de água e gás usado por condomínios
-brasileiros. Ela entra com as mesmas credenciais que você usa no portal e
-transforma cada medidor listado no seu apartamento em um dispositivo com as
-respectivas leituras.
+## Recursos
 
-## Entidades
+- Veja a última leitura, o consumo do mês e o valor cobrado de cada medidor
+  de água fria, água quente e gás.
+- Acompanhe quanto você já consumiu no ano.
+- Coloque a água e o gás no painel de Energia, com o custo de cada mês e o
+  histórico dos anos anteriores trazido do portal.
+- Medidores novos que aparecem no portal entram no Home Assistant sem
+  reiniciar.
 
-É criado um dispositivo por medidor que o portal lista, nomeado pelo código do
-medidor e pelo que ele mede — "AF1234 Água Fria", "AQ1234 Água Quente",
-"AQ1234 Gás" —, cada um com quatro sensores:
+## Requisitos
 
-| Sensor | Unidade | Classe | O que informa |
-|---|---|---|---|
-| Leitura | m³ | water / gas, `total_increasing` | Valor do contador na última leitura publicada. Use como fonte de água ou gás no painel de Energia. |
-| Consumo Mensal | m³ | water / gas, `total` | Volume cobrado no período da última leitura; `last_reset` é o primeiro dia daquele mês. |
-| Custo Mensal | BRL | monetary, `total` | Valor cobrado pelo medidor naquele período. |
-| Consumo Anual | m³ | water / gas, `total` | Volume acumulado desde a primeira leitura do ano. |
+- Home Assistant 2026.7.2 ou mais recente.
+- Um apartamento em condomínio atendido pela Metragen, com cadastro no Portal
+  do Morador (formulário **Registre-se** do portal).
+- Acesso do Home Assistant à internet. Os dados vêm do site da Metragen.
 
-Todo sensor expõe `meter_code`, `year` e `month` como atributos, para que você
-saiba a qual período de cobrança o estado se refere. O portal publica as
-leituras uma vez por mês, então o intervalo padrão de consulta é de uma hora
-(configurável nas opções da integração).
-
-## Histórico e o painel de Energia
-
-O estado de um sensor traz apenas a última leitura publicada, então o histórico
-mês a mês que o portal guarda é importado para as estatísticas de longo prazo
-do Home Assistant. Cada medidor recebe duas estatísticas externas:
-
-| Id da estatística | Unidade | O que guarda |
-|---|---|---|
-| `metragen:<code>_<kind>` | m³ | Volume de cada mês, com a leitura do medidor como estado |
-| `metragen:<code>_<kind>_cost` | BRL | Valor cobrado em cada mês |
-
-`<code>` é o código do medidor exibido no portal e `<kind>` é `water` ou `gas`,
-por exemplo `metragen:af1234_water` ou `metragen:aq1234_gas`. As séries têm o
-mesmo nome dos dispositivos dos medidores ("AF1234 Água Fria", "AQ1234 Gás"),
-então o seletor do painel de energia lê igual à lista de dispositivos. O valor
-de cada mês cai no primeiro dia daquele mês.
-
-A primeira atualização volta um ano de cada vez até o portal não informar
-nenhum medidor (no máximo 10 anos); as seguintes só acrescentam meses mais
-novos que o último armazenado. Escolha a estatística de consumo como fonte de
-água ou gás em *Configurações → Painéis → Energia*, ou plote qualquer uma das
-séries com um card de gráfico de estatísticas. Remover a integração mantém as
-estatísticas; exclua-as em *Ferramentas de desenvolvedor → Estatísticas* se não
-as quiser mais.
-
+<!-- ha-marketplace:exclude-start -->
 ## Instalação
 
-### HACS
+### Marketplace do Home Assistant (recomendado)
 
-1. Adicione `https://github.com/roquerodrigo/ha-metragen` como repositório
-   personalizado do tipo *Integração*, ou clique no badge acima.
-2. Instale **Metragen** e reinicie o Home Assistant.
-3. Vá em *Configurações → Dispositivos e serviços → Adicionar integração*,
-   escolha **Metragen** e informe o código ou e-mail e a senha que você
-   cadastrou no portal do morador (o formulário *Registre-se*).
+1. Selecione o botão **Abra a sua instância do Home Assistant** acima, ou vá
+   em **Configurações → Marketplace**, selecione **Adicionar a partir de
+   link** no canto superior direito, informe `roquerodrigo/ha-metragen` no
+   campo **Link do GitHub** e selecione **Adicionar**.
+2. Selecione **Instalar**.
+3. Reinicie o Home Assistant.
+
+O Marketplace vem com o Home Assistant 2026.11 e posteriores. Em versões
+anteriores, adicione este repositório ao HACS como repositório personalizado
+do tipo **Integração** e instale por lá.
 
 ### Manual
 
-Copie `custom_components/metragen/` para o diretório `custom_components/` da
-sua configuração do Home Assistant e reinicie.
+1. Baixe o `metragen.zip` da
+   [última versão](https://github.com/roquerodrigo/ha-metragen/releases/latest).
+2. Extraia o conteúdo em `config/custom_components/metragen/`.
+3. Reinicie o Home Assistant.
+<!-- ha-marketplace:exclude-end -->
+
+## Configuração
+
+Vá em **Configurações → Dispositivos e serviços → Adicionar integração**,
+procure **Metragen** e preencha o formulário.
+
+| Campo            | O que informar                                             |
+|------------------|------------------------------------------------------------|
+| Código ou e-mail | O código ou o e-mail que você cadastrou no Portal do Morador |
+| Senha            | A senha do Portal do Morador                               |
+
+Use o login de morador, e não o da administração do condomínio. Para
+acompanhar outro apartamento, adicione a integração de novo com a conta dele.
+
+Para trocar a senha depois, abra a integração e selecione **Reconfigurar**.
+O código ou e-mail precisa ser o mesmo usado na configuração. Se o portal
+deixar de aceitar a senha, o Home Assistant pede as credenciais novas.
+
+## Opções
+
+Abra a integração e selecione **Configurar**.
+
+| Opção                            | Padrão            | Valores        | Efeito                                      |
+|----------------------------------|-------------------|----------------|---------------------------------------------|
+| Intervalo de consulta (segundos) | 3600 (uma hora)   | 300 ou mais    | De quanto em quanto tempo o portal é consultado |
+
+O portal publica uma leitura por mês, então consultar com mais frequência não
+traz ganho perceptível.
+
+## Entidades
+
+Cada medidor que o portal lista vira um dispositivo, com o código do medidor e
+o que ele mede no nome: AF1234 Água Fria, AQ1234 Água Quente, AQ1234 Gás. Um
+código que não começa com AF ou AQ aparece como Água (por exemplo, AB1234
+Água).
+
+Em condomínios que cobram o aquecimento da água pelo gás, o medidor de água
+quente aparece duas vezes: como Água Quente, com a conta de água, e como Gás,
+com a cobrança do aquecimento.
+
+### Cada medidor
+
+| Entidade       | Tipo   | Unidade | Mostra                                                 |
+|----------------|--------|---------|--------------------------------------------------------|
+| Leitura        | Sensor | m³      | O valor do contador na última leitura publicada        |
+| Consumo Mensal | Sensor | m³      | O volume cobrado no mês da última leitura              |
+| Custo Mensal   | Sensor | BRL     | O valor cobrado por esse medidor no mês da última leitura |
+| Consumo Anual  | Sensor | m³      | O volume somado desde a primeira leitura do ano        |
+
+Todos os sensores trazem os atributos `meter_code`, `year` e `month`, que
+dizem a qual medidor e a qual mês de cobrança o valor se refere.
+
+### Histórico e painel de Energia
+
+Os sensores mostram só a última leitura. O histórico mês a mês que o portal
+guarda vai para as estatísticas de longo prazo do Home Assistant, em duas
+séries por medidor:
+
+| Estatística                     | Unidade | Guarda                       |
+|---------------------------------|---------|------------------------------|
+| `metragen:<código>_<tipo>`      | m³      | O consumo de cada mês        |
+| `metragen:<código>_<tipo>_cost` | BRL     | O valor cobrado em cada mês  |
+
+`<código>` é o código do medidor em minúsculas e `<tipo>` é `water` ou `gas`,
+por exemplo `metragen:af1234_water` e `metragen:aq1234_gas`. A série de
+consumo tem o nome do dispositivo (AF1234 Água Fria) e a de custo acrescenta
+Custo Mensal (AF1234 Água Fria Custo Mensal). Os nomes seguem o idioma do
+Home Assistant. O valor de cada mês fica no primeiro dia daquele mês.
+
+Para usar as séries no painel de Energia:
+
+1. Vá em **Configurações → Energia**.
+2. Em **Consumo de água**, selecione **Adicionar fonte de água** e escolha a
+   série de consumo do medidor, como AF1234 Água Fria. Para o gás, use
+   **Adicionar fonte de gás** em **Consumo de gás**.
+3. Para acompanhar o custo, selecione **Usar uma entidade que rastreie os
+   custos totais** e escolha a série de custo do mesmo medidor, como AF1234
+   Água Fria Custo Mensal.
+
+Use as séries, e não o sensor Leitura, como fonte do painel. As séries
+colocam o consumo de cada mês no mês certo e já trazem o histórico. O sensor
+Leitura conta o mês inteiro no momento em que a leitura nova chega. Não
+cadastre os dois para o mesmo medidor, senão o consumo aparece em dobro.
+
+Você também pode ver qualquer uma das séries num card de gráfico de
+estatísticas.
 
 ## Como funciona
 
-O portal não tem API pública; a integração usa os mesmos endpoints que a área
-do morador do site usa:
+A Metragen não oferece uma API pública. A integração lê o mesmo Portal do
+Morador que você abre no navegador, com o seu login, e busca as leituras de
+água e gás a cada hora (ajustável em Opções). Como o portal publica uma
+leitura por mês, os valores mudam uma vez por mês.
 
-1. `POST /Portal/AcessoAoPortal` com o código ou e-mail e a senha que o morador
-   cadastrou no portal. Um login rejeitado redireciona de volta à página de
-   login em vez de falhar a requisição.
-2. `POST /Portal/AreaMorador` e `POST /Portal/FiltroAno` selecionam a área do
-   morador e o ano na sessão mantida no servidor.
-3. `POST /Portal/LeiturasMorador_Read` e `POST /Portal/LeiturasMoradorGas_Read`
-   retornam os grids de água e de gás em JSON. Um corpo vazio significa que a
-   sessão expirou, então o cliente entra de novo e tenta mais uma vez.
+Na primeira atualização, a integração volta ano a ano no portal, até 10 anos
+antes do atual, e importa todos os meses que encontrar. Depois disso, ela só
+acrescenta os meses novos.
 
-As leituras são publicadas mensalmente, então no começo do ano o ano corrente
-pode ainda não ter linhas; cada tipo sem linhas recai no ano anterior, para que
-a última leitura continue sendo informada na virada do ano. Quedas curtas do
-portal são absorvidas por 24 horas antes de as entidades ficarem indisponíveis,
-e credenciais rejeitadas iniciam o fluxo de reautenticação.
+No começo do ano, enquanto o portal ainda não tem leituras do ano corrente, os
+sensores continuam mostrando a última leitura do ano anterior.
 
-## Desenvolvimento
+Se o portal sair do ar, os sensores mantêm os últimos valores por até 24 horas
+antes de ficarem indisponíveis.
 
-```bash
-scripts/setup                              # cria o .venv e instala as dependências (uv sync)
-scripts/develop                            # inicia o Home Assistant em modo debug com a integração carregada
-scripts/lint                               # ruff format --check, ruff check, mypy e pytest
-uv run ruff format --check .               # confere a formatação
-uv run ruff check .                        # lint
-uv run mypy custom_components/metragen     # checagem de tipos
-uv run pytest                              # roda os testes com o gate de 90 % de cobertura
-```
+## Solução de problemas
 
-Os dois scripts rodam pelo `uv`, que gerencia o `./.venv` automaticamente. O HA
-roda com a configuração em `config/` e o `PYTHONPATH` apontando para
-`custom_components/` — sem symlinks. Para recriar os ids de entidades e
-dispositivos durante o desenvolvimento:
+**O formulário diz que o portal rejeitou o código/e-mail ou a senha.** A
+integração usa o login do Portal do Morador, criado no formulário
+**Registre-se** do portal, e não o da administração do condomínio. Confira se
+o login funciona no site.
 
-```bash
-rm config/.storage/core.entity_registry config/.storage/core.device_registry
-```
+**O Home Assistant pede para autenticar de novo.** A senha mudou ou o portal
+deixou de aceitá-la. Informe as credenciais atuais no aviso de
+reautenticação em **Configurações → Dispositivos e serviços**.
 
-### Testando no Docker
+**Os valores não mudaram este mês.** O portal publica as leituras uma vez por
+mês. Os atributos `year` e `month` dos sensores mostram a qual mês o valor
+atual se refere.
 
-O `compose.yaml` roda a versão do Home Assistant em que os testes estão
-fixados, com `config/` como diretório de configuração e
-`custom_components/metragen/` montado como somente leitura dentro dele, de modo
-que o container sempre roda a árvore de trabalho:
+**As entidades ficaram indisponíveis.** O portal está fora do ar há mais de 24
+horas ou deixou de listar o medidor. Um medidor que o portal não lista mais
+pode ser excluído na página do dispositivo.
 
-```bash
-docker compose up -d          # inicia o Home Assistant em http://localhost:8123
-docker compose logs -f        # acompanha o log (a integração loga em nível debug)
-docker compose restart        # recarrega a integração após uma mudança no código
-docker compose down           # para; config/ mantém o onboarding, os usuários e as entries
-```
+**O consumo aparece em dobro no painel de Energia.** O sensor Leitura e a
+série do mesmo medidor estão cadastrados como fonte. Remova o sensor e mantenha
+a série.
 
-Na primeira inicialização, conclua o onboarding e depois adicione **Metragen**
-em *Configurações → Dispositivos e serviços*. O `config/` é compartilhado com o
-`scripts/develop`, então não rode os dois ao mesmo tempo.
+**Outro problema.** Na página da integração, selecione **Habilitar log de
+depuração**, reproduza o problema e selecione **Desabilitar log de depuração**
+para baixar o log. Abra uma
+[issue](https://github.com/roquerodrigo/ha-metragen/issues) com o log e o
+arquivo de **Fazer download dos diagnósticos**. O login, a senha e os códigos
+dos medidores são removidos desse arquivo.
 
-As convenções para quem contribui ficam em [`CODE_STYLE.md`](./CODE_STYLE.md);
-as notas de arquitetura para agentes de IA, em [`CLAUDE.md`](./CLAUDE.md).
-Instale os hooks de pre-commit uma vez por clone com `pre-commit install`.
+## Limitações conhecidas
 
-## Estrutura
+- O portal informa uma leitura por mês. Não há consumo diário nem por hora.
+- Um mês que o portal corrigir depois de importado não muda no histórico.
+- O histórico importado cobre o ano atual e os 10 anteriores, no máximo.
+- Remover a integração mantém as estatísticas. Para apagá-las, use a aba
+  **Estatísticas** em **Configurações → Ferramentas**.
 
-```
-custom_components/metragen/
-├── __init__.py        # async_setup_entry / unload / reload / remoção de dispositivo
-├── api.py             # cliente do portal: login, seleção de ano, leitura dos grids
-├── brand/             # assets da marca
-├── config_flow.py     # passos user / reauth / reconfigure
-├── const.py           # DOMAIN, LOGGER, URL do portal, ATTRIBUTION, padrões de scan interval
-├── coordinator.py     # DataUpdateCoordinator com fallback de ano e carência para quedas
-├── data/              # um TypedDict/dataclass por arquivo; aliases de tipo no __init__.py
-│   ├── meter.py       # MetragenMeter: código, tipo, leituras, valores derivados
-│   ├── meter_kind.py  # water / gas
-│   ├── meter_reading.py
-│   ├── readings.py    # medidores de um ano, por tipo
-│   ├── reading_row.py # formato bruto da linha do grid
-│   ├── read_response.py
-│   └── …              # formatos de config, opções, diagnóstico e runtime
-├── diagnostics.py     # diagnóstico para download, com as credenciais ocultadas
-├── entity.py          # CoordinatorEntity base vinculada a um medidor
-├── exceptions/        # um arquivo por classe de exceção
-├── icons.json         # ícones das entidades indexados por translation_key
-├── manifest.json
-├── options_flow.py    # OptionsFlow com scan_interval
-├── repairs.py         # plataforma de reparos
-├── sensor/            # um arquivo por classe de sensor
-└── translations/
-    ├── en.json
-    └── pt-BR.json
-```
+## Apoie o projeto
 
-## CI
+Esta integração é desenvolvida e mantida no meu tempo livre. Se ela for útil
+para você, considere
+[patrocinar o trabalho](https://github.com/sponsors/roquerodrigo). É o que
+garante as correções, os testes e as novas versões.
 
-Os workflows chamam os workflows reutilizáveis de [`roquerodrigo/workflows`](https://github.com/roquerodrigo/workflows), e a release usa a action [Release Autopilot](https://github.com/marketplace/actions/release-autopilot):
+Para relatar um bug ou pedir uma melhoria, abra uma
+[issue](https://github.com/roquerodrigo/ha-metragen/issues).
 
-- **`ci.yml`** — ruff (check + format) + mypy, pytest com o gate de cobertura e validação `hassfest` (o validador do HACS fica desligado enquanto o repositório for privado); push/PR para a `main`
-- **`release.yml`** — release-autopilot, condicionado a um CI verde na `main`; quando uma release é criada, anexa a ela o `metragen.zip` que o HACS baixa (`zip_release` em `hacs.json`)
-- **`auto-assign.yml`** — atribui novas issues/PRs ao code owner
+<!-- ha-marketplace:exclude-start -->
+## Contribuindo
+
+Veja o [CONTRIBUTING.md](CONTRIBUTING.md) para o ambiente de desenvolvimento e
+o fluxo de trabalho, e o [CODE_STYLE.md](CODE_STYLE.md) para as convenções de
+código.
 
 ## Licença
 
 [MIT](LICENSE)
+<!-- ha-marketplace:exclude-end -->

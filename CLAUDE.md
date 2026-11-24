@@ -6,7 +6,7 @@ Orientações para agentes do Claude Code (claude.ai/code) que trabalham neste r
 
 Antes de criar, renomear ou reestruturar qualquer arquivo/classe/função, **leia o [`CODE_STYLE.md`](./CODE_STYLE.md)**. Ele é a única fonte da verdade para as convenções: idioma, organização de arquivos, nomenclatura, tipagem, properties vs `__init__`, imports, docstrings, comentários, padrão do coordinator, layout de reparos/diagnóstico, traduções, fluxo de lint.
 
-Para os assuntos voltados ao usuário (entidades, instalação, como o portal é acessado, diagrama de estrutura, comandos úteis, lista de CI), veja o [`README.md`](./README.md).
+Para os assuntos voltados ao usuário (configuração, entidades, histórico e painel de Energia), veja o [`README.md`](./README.md). A estrutura dos módulos, os comandos de desenvolvimento e a lista de CI ficam no [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 Este arquivo evita, de propósito, repetir essas regras — ele só acrescenta:
 
@@ -39,10 +39,11 @@ Os dois gates espelham o CI (`.github/workflows/ci.yml`). Só pule isso quando a
 
 ## Atualizando a versão do Home Assistant
 
-A versão do Home Assistant é fixada em dois lugares e **precisa ser atualizada em conjunto**; caso contrário, o CI, o HACS e o harness de testes se afastam:
+A versão do Home Assistant é fixada em três lugares e **precisa ser atualizada em conjunto**; caso contrário, o CI, o HACS e o harness de testes se afastam:
 
 1. `pyproject.toml`, `[dependency-groups] dev` — `homeassistant==<X.Y.Z>` (runtime/lint do CI + mypy) **e** `pytest-homeassistant-custom-component==<release correspondente>` (o harness de testes traz o próprio `homeassistant` fixado; os dois pins precisam vir da mesma release do HA, senão o lint e os testes resolvem cores diferentes).
 2. `hacs.json` — `"homeassistant": "<X.Y.Z>"` (core mínimo do HA imposto pelo HACS).
+3. `compose.yaml` — a tag da imagem `ghcr.io/home-assistant/home-assistant:<X.Y.Z>` (o Home Assistant de desenvolvimento no Docker).
 
 Confira o pareamento no PyPI antes de commitar: o `requires_dist` do `pytest-homeassistant-custom-component` precisa listar o mesmo `homeassistant==<X.Y.Z>` que você fixou no `pyproject.toml`.
 
@@ -50,7 +51,7 @@ O `pytest`, o `pytest-asyncio` e o `pytest-cov` não são fixados diretamente: o
 
 ## Convenções que não ficam óbvias pelo código
 
-A integração segue o padrão `DataUpdateCoordinator` do HA; o layout módulo a módulo está no `README.md`. Algumas escolhas não ficam evidentes lendo um único arquivo:
+A integração segue o padrão `DataUpdateCoordinator` do HA; o layout módulo a módulo está no `CONTRIBUTING.md`. Algumas escolhas não ficam evidentes lendo um único arquivo:
 
 - O estado mora em `entry.runtime_data` (descartado automaticamente no unload), **nunca** em `hass.data`.
 - O `data/__init__.py` guarda os aliases `type` (`MetragenConfigEntry`, `MetragenPayload`, `Json*`) **e** reexporta todos os símbolos dos módulos irmãos, de modo que o restante do código importa tudo de `.data`.
