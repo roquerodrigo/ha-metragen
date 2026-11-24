@@ -244,3 +244,24 @@ async def test_reconfigure_generic_error_shows_unknown(
         )
     assert result["type"] == FlowResultType.FORM
     assert result["errors"]["base"] == "unknown"
+
+
+@pytest.mark.parametrize(
+    "login_error", [None, MetragenApiClientAuthenticationError("bad")]
+)
+async def test_credential_check_closes_its_session(
+    hass, enable_custom_integrations, login_error
+):
+    session = AsyncMock()
+    with (
+        _patch_client() as mock,
+        patch(
+            "custom_components.metragen.config_flow.async_create_clientsession",
+            return_value=session,
+        ),
+        patch("custom_components.metragen.async_setup_entry", return_value=True),
+    ):
+        mock.return_value.async_login = AsyncMock(side_effect=login_error)
+        result = await _start_user_flow(hass)
+        await hass.config_entries.flow.async_configure(result["flow_id"], USER_INPUT)
+    session.close.assert_awaited_once()

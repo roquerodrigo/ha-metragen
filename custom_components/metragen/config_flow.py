@@ -171,9 +171,12 @@ class MetragenFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _test_credentials(self, username: str, password: str) -> None:
         """Valida as credenciais na API."""
-        client = MetragenApiClient(
-            username=username,
-            password=password,
-            session=async_create_clientsession(self.hass),
-        )
-        await client.async_login()
+        session = async_create_clientsession(self.hass)
+        try:
+            await MetragenApiClient(
+                username=username,
+                password=password,
+                session=session,
+            ).async_login()
+        finally:
+            await session.close()
