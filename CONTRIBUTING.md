@@ -1,57 +1,119 @@
-# Diretrizes de contribuição
+# Contribuindo
 
-Contribuir com este projeto deve ser o mais fácil e transparente possível, seja para:
+Relatos de bug, ideias e pull requests são bem-vindos. Issues, commits e pull
+requests são escritos em português do Brasil. O código continua em inglês
+(veja a seção "Idioma" do [CODE_STYLE.md](CODE_STYLE.md)).
 
-- Relatar um bug
-- Discutir o estado atual do código
-- Enviar uma correção
-- Propor novas funcionalidades
+## Relatando um bug
 
-As contribuições são escritas em português do Brasil: issues, comentários, mensagens de commit e descrições de PR. O código permanece em inglês — veja a seção "Idioma" do [`CODE_STYLE.md`](./CODE_STYLE.md).
+Abra uma [issue](https://github.com/roquerodrigo/ha-metragen/issues/new/choose)
+com:
 
-## O GitHub é usado para tudo
+- a versão do Home Assistant e a da integração;
+- o que você fez, o que esperava e o que aconteceu;
+- os diagnósticos baixados no menu da integração (o login, a senha e os
+  códigos dos medidores são removidos) e as linhas relevantes do log de
+  depuração.
 
-O GitHub hospeda o código, acompanha issues e pedidos de funcionalidade e recebe os pull requests.
+## Ambiente de desenvolvimento
 
-Pull requests são a melhor forma de propor mudanças no código.
+O projeto usa o [uv](https://docs.astral.sh/uv/), que cria e gerencia o
+`.venv/` sozinho.
+
+```bash
+scripts/setup      # instala as dependências no .venv
+scripts/develop    # roda o Home Assistant em http://localhost:8123 com a integração carregada
+```
+
+O `scripts/develop` usa a configuração em [`config/`](config/) e coloca
+`custom_components/` no `PYTHONPATH`, sem symlink. Para recriar os ids de
+entidades e dispositivos, apague `config/.storage/core.entity_registry` e
+`config/.storage/core.device_registry` com o Home Assistant parado.
+
+### Docker
+
+O [`compose.yaml`](compose.yaml) roda a mesma versão do Home Assistant usada
+nos testes, com `config/` como configuração e `custom_components/metragen/`
+montado somente leitura, de modo que o container sempre roda a árvore de
+trabalho.
+
+```bash
+docker compose up -d          # inicia o Home Assistant em http://localhost:8123
+docker compose logs -f        # acompanha o log
+docker compose restart        # recarrega a integração depois de mudar o código
+docker compose down           # para o container, config/ mantém os dados
+```
+
+O `config/` é compartilhado com o `scripts/develop`, então não rode os dois ao
+mesmo tempo.
+
+## Checagens
+
+Rode antes de abrir um pull request. O CI roda as mesmas, e o
+`pre-commit install` faz as três primeiras rodarem a cada commit.
+
+```bash
+uv run ruff format --check .              # formatação
+uv run ruff check .                       # lint
+uv run mypy custom_components/metragen    # tipos
+uv run pytest                             # testes, a cobertura precisa ficar em 90 % ou mais
+```
+
+O `scripts/lint` roda os quatro comandos em sequência.
+
+Leia o [CODE_STYLE.md](CODE_STYLE.md) antes de criar ou reorganizar código.
+
+## Estrutura
+
+```
+custom_components/metragen/
+├── __init__.py        # setup, unload, reload e exclusão de dispositivos
+├── api.py             # cliente do Portal do Morador: login, seleção de ano, leitura dos grids
+├── brand/             # ícones da integração
+├── config_flow.py     # passos user, reauth e reconfigure
+├── const.py           # domínio, URL do portal e intervalo de consulta padrão
+├── coordinator.py     # atualização com fallback de ano e carência de 24 horas para quedas
+├── data/              # um TypedDict ou dataclass por arquivo, aliases de tipo no __init__.py
+├── diagnostics.py     # diagnóstico com login, senha e códigos de medidor ocultados
+├── entity.py          # entidade base vinculada a um medidor
+├── exceptions/        # um arquivo por exceção
+├── icons.json         # ícones das entidades
+├── manifest.json
+├── options_flow.py    # intervalo de consulta
+├── repairs.py         # plataforma de reparos
+├── sensor/            # um arquivo por sensor
+├── statistics.py      # importação do histórico mensal para as estatísticas de longo prazo
+└── translations/      # en.json e pt-BR.json
+```
+
+## CI
+
+- `ci.yml`: ruff e mypy, pytest com o gate de cobertura, a validação do
+  Home Assistant Marketplace, o hassfest e o HACS action, em todo pull request
+  e push na `main`.
+- `codeql.yml`: análise de segurança do código.
+- `release.yml`: depois de um CI verde na `main`, o
+  [Release Autopilot](https://github.com/marketplace/actions/release-autopilot)
+  mantém o pull request de release e, quando uma versão sai, anexa a ela o
+  `metragen.zip`.
+- `auto-assign.yml`: atribui issues e pull requests novos ao mantenedor.
+
+## Pull requests
 
 1. Faça um fork do repositório e crie a sua branch a partir da `main`.
-2. Se você mudou algo, atualize a documentação.
-3. Garanta que o código passa no lint (rode `uv run ruff format --check .`, `uv run ruff check .` e `uv run mypy custom_components/metragen`).
-4. Teste a sua contribuição.
-5. Abra o pull request!
-
-## Toda contribuição fica sob a licença MIT
-
-Em resumo: ao enviar mudanças de código, entende-se que elas ficam sob a mesma [licença MIT](http://choosealicense.com/licenses/mit/) que cobre o projeto. Fale com os mantenedores se isso for um problema.
-
-## Relate bugs pelas [issues](../../issues) do GitHub
-
-As issues do GitHub são usadas para acompanhar os bugs públicos.
-Relate um bug [abrindo uma nova issue](../../issues/new/choose); é simples assim!
-
-## Escreva relatos de bug com detalhes, contexto e código de exemplo
-
-**Bons relatos de bug** costumam ter:
-
-- Um resumo rápido e/ou o contexto
-- Passos para reproduzir
-  - Seja específico!
-  - Inclua código de exemplo, se puder.
-- O que você esperava que acontecesse
-- O que acontece de fato
-- Observações (incluindo, se for o caso, por que você acha que isso acontece ou o que você tentou e não funcionou)
-
-## Use um estilo de código consistente
-
-O projeto usa o [ruff](https://docs.astral.sh/ruff/) (configurado no `pyproject.toml`). Rode `uv run ruff format --check .`, `uv run ruff check .` e `uv run mypy custom_components/metragen` antes de enviar um PR.
-
-## Teste a sua modificação
-
-Este projeto é baseado no [ha-integration-blueprint](https://github.com/roquerodrigo/ha-integration-blueprint).
-
-Rode `scripts/setup` uma vez para criar o ambiente virtual gerenciado pelo `uv` e, depois, `scripts/develop` para iniciar uma instância independente do Home Assistant em modo debug, com a integração carregada e o arquivo [`configuration.yaml`](./config/configuration.yaml) incluído.
+2. Escreva as mensagens de commit no
+   [Conventional Commits](https://www.conventionalcommits.org/), com o tipo e o
+   escopo em inglês e o assunto em português
+   (`fix(sensor): corrige o consumo anual na virada do ano`). As versões e as
+   notas de release são geradas a partir delas. Marque mudanças que quebram a
+   compatibilidade com `!` ou com o rodapé `BREAKING CHANGE:`.
+3. Atualize `translations/en.json` e `translations/pt-BR.json` juntos quando
+   mudar textos exibidos ao usuário. O `tests/test_translations.py` falha se
+   as chaves divergirem.
+4. Atualize o README quando o comportamento, a configuração ou as entidades
+   mudarem.
+5. Preencha o template do pull request.
 
 ## Licença
 
-Ao contribuir, você concorda que as suas contribuições serão licenciadas sob a licença MIT do projeto.
+As contribuições são publicadas sob a [licença MIT](LICENSE) do projeto.
