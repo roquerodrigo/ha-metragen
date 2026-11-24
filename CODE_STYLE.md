@@ -271,7 +271,11 @@ restrição deliberada — o `config_flow.py` traz o exemplo canônico.
 O [Home Assistant Autopilot](https://github.com/marketplace/actions/home-assistant-autopilot) valida o
 formato do repositório a cada push: o `hassfest`, as checagens de catálogo do
 [Home Assistant Marketplace](https://contributors.home-assistant.io/marketplace/), o `hacs.json` e
-as versões que ele declara. Todas as checagens precisam ficar verdes:
+as versões que ele declara. O [HACS action](https://hacs.xyz/docs/publish/action)
+oficial e o [hassfest](https://developers.home-assistant.io/blog/2020/04/16/hassfest/)
+também rodam como jobs próprios no `ci.yml`, sem chaves `ignore`, porque o
+catálogo padrão do HACS pede os runs deles na submissão. Todas as checagens
+precisam ficar verdes:
 
 - **Uma integração por repositório**, localizada em
   `custom_components/<domain>/`.
