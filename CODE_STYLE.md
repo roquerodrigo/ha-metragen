@@ -294,13 +294,17 @@ precisam ficar verdes:
   países; a Metragen só atende condomínios brasileiros, então a chave evita
   ruído nas lojas dos demais países. É ela também que define o pt-BR como
   idioma do repositório (veja "Idioma").
-- Os assets da marca ficam em `custom_components/<domain>/brand/` — `icon.png`,
-  `icon.svg`; nenhum `logo.png` é distribuído porque o Home Assistant recai no
-  ícone para ele. O Home Assistant 2026.3+ serve o diretório direto da
-  integração, antes do CDN do
+- Os assets da marca ficam em `custom_components/<domain>/brand/` — `icon.png`
+  (256×256) e `icon@2x.png` (512×512); nenhum `logo.png` é distribuído porque
+  o Home Assistant recai no ícone para ele, e a única arte horizontal que a
+  Metragen publica (258×51) é pequena demais para ampliar. O Home Assistant
+  2026.3+ serve o diretório direto da integração, antes do CDN do
   [home-assistant/brands](https://github.com/home-assistant/brands), então não
-  é preciso submeter nada ao brands; o `brand/README.md` registra a origem e as
-  regras de tamanho.
+  é preciso submeter nada ao brands. O diretório só aceita as imagens que o
+  Home Assistant usa: o hassfest rejeita qualquer outro arquivo nele. A origem
+  é o símbolo que a Metragen publica em
+  `https://metragen.com.br/wp-content/uploads/2022/08/metragen-favicon.png`
+  (PNG 800×800 com transparência), redimensionado com filtro Lanczos.
 - Um `README.md` na raiz do repositório é obrigatório; o HACS o exibe como a
   descrição da integração. O cabeçalho dele segue o layout abaixo.
 
