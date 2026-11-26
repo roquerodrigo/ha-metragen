@@ -2,13 +2,21 @@ name: Release
 
 # Condicionado a um CI bem-sucedido, e não ao push em si. A metade
 # `workflow_run.event == 'push'` da condição é o que impede um pull request
-# com CI verde de gerar uma release.
+# com CI verde de gerar uma release. O disparo manual, pela aba Actions, aceita
+# `force` para abrir o pull request de release mesmo quando nada nos commits
+# importa para quem usa a integração.
 
 on:
   workflow_run:
     workflows: [CI]
     types: [completed]
     branches: [main]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Abre o pull request de release mesmo sem mudanças relevantes para quem usa a integração
+        type: boolean
+        default: false
 
 concurrency:
   group: release
@@ -20,8 +28,9 @@ jobs:
   release:
     name: Release
     if: >-
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.conclusion == 'success'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
@@ -34,6 +43,7 @@ jobs:
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          force: ${{ inputs.force == true }}
 
       - name: Attach the release asset
         if: steps.release.outputs.released == 'true'
