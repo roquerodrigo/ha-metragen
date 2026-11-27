@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.5](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.4...v0.1.5) (2026-11-27)
+
+### Melhorias
+
+- O README foi reescrito para quem usa a integração, com configuração, entidades de cada medidor, uso do histórico mensal no painel de Energia, solução de problemas e limitações conhecidas. ([#34](https://github.com/roquerodrigo/ha-metragen/pull/34))
+
+### Correções
+
+- O diretório de imagens da integração agora contém apenas as imagens aceitas pelo Home Assistant, o que evita a recusa da validação do catálogo padrão do HACS. ([#37](https://github.com/roquerodrigo/ha-metragen/pull/37))
+
 ## [0.1.4](https://github.com/roquerodrigo/ha-metragen/compare/v0.1.3...v0.1.4) (2026-11-24)
 
 ### Correções
